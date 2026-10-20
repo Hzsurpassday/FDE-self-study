@@ -1,0 +1,1917 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FDE认证备考追踪系统</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--primary:#0052D9;--primary-light:#E8F0FE;--success:#00A870;--success-light:#E8F8F0;--warning:#FAAD14;--warning-light:#FFF7E6;--error:#E34D59;--error-light:#FDE8EA;--bg:#F5F7FA;--card:#FFFFFF;--text:#1D2129;--text2:#4E5969;--text3:#86909C;--border:#E5E6EB;--shadow:0 2px 8px rgba(0,0,0,0.08);--radius:8px}
+body{font-family:"PingFang SC","Microsoft YaHei","Noto Sans SC",sans-serif;background:var(--bg);color:var(--text);line-height:1.6;min-height:100vh}
+.app-header{background:var(--card);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:var(--shadow)}
+.app-title{font-size:18px;font-weight:700;color:var(--primary)}
+.app-title small{font-size:12px;color:var(--text3);font-weight:400;margin-left:8px}
+.exam-countdown{background:var(--primary-light);color:var(--primary);padding:6px 14px;border-radius:20px;font-size:13px;font-weight:600}
+.nav-tabs{display:flex;background:var(--card);border-bottom:1px solid var(--border);padding:0 16px;overflow-x:auto}
+.nav-tab{padding:12px 18px;cursor:pointer;font-size:14px;color:var(--text2);border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap}
+.nav-tab:hover{color:var(--primary)}
+.nav-tab.active{color:var(--primary);border-bottom-color:var(--primary);font-weight:600}
+.view{display:none;padding:20px;max-width:1200px;margin:0 auto}
+.view.active{display:block}
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px;margin-bottom:16px}
+.card-title{font-size:16px;font-weight:600;margin-bottom:12px;color:var(--text)}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.stat-card{text-align:center;padding:20px}
+.stat-card .stat-value{font-size:28px;font-weight:700;color:var(--primary)}
+.stat-card .stat-label{font-size:13px;color:var(--text3);margin-top:4px}
+.stat-card.success .stat-value{color:var(--success)}
+.stat-card.warning .stat-value{color:var(--warning)}
+.stat-card.error .stat-value{color:var(--error)}
+.progress-bar{height:8px;background:var(--border);border-radius:4px;overflow:hidden;margin:8px 0}
+.progress-bar .fill{height:100%;border-radius:4px;transition:width .5s}
+.btn{padding:8px 20px;border:none;border-radius:6px;cursor:pointer;font-size:14px;font-weight:500;transition:all .2s;display:inline-flex;align-items:center;gap:6px}
+.btn-primary{background:var(--primary);color:#fff}.btn-primary:hover{background:#0047B8}
+.btn-success{background:var(--success);color:#fff}.btn-success:hover{background:#008F5F}
+.btn-warning{background:var(--warning);color:#fff}
+.btn-error{background:var(--error);color:#fff}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text2)}.btn-outline:hover{border-color:var(--primary);color:var(--primary)}
+.btn-sm{padding:4px 12px;font-size:12px}.btn-lg{padding:12px 32px;font-size:16px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600}
+.badge-primary{background:var(--primary-light);color:var(--primary)}
+.badge-success{background:var(--success-light);color:var(--success)}
+.badge-warning{background:var(--warning-light);color:var(--warning)}
+.badge-error{background:var(--error-light);color:var(--error)}
+.module-bar{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}.module-bar:last-child{border-bottom:none}
+.module-bar .bar-bg{flex:1;height:22px;background:var(--border);border-radius:11px;overflow:hidden}
+.module-bar .bar-fill{height:100%;border-radius:11px;transition:width .5s;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;font-size:11px;color:#fff;font-weight:600;min-width:30px}
+.module-bar .bar-label{width:120px;font-size:13px;color:var(--text2)}
+.module-bar .bar-pct{width:40px;text-align:right;font-size:13px;font-weight:600}
+.learn-layout{display:grid;grid-template-columns:280px 1fr;gap:16px;min-height:calc(100vh - 160px)}
+.learn-sidebar{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);overflow-y:auto;max-height:calc(100vh - 160px)}
+.learn-sidebar .module-group{padding:4px 0;border-bottom:1px solid var(--border)}
+.learn-sidebar .module-header{padding:8px 16px;font-size:12px;font-weight:600;color:var(--primary);background:var(--primary-light)}
+.learn-sidebar .kp-item{padding:8px 16px;cursor:pointer;font-size:13px;display:flex;align-items:center;gap:8px;transition:background .15s}
+.learn-sidebar .kp-item:hover{background:var(--bg)}
+.learn-sidebar .kp-item.active{background:var(--primary-light);color:var(--primary);font-weight:600}
+.kp-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.learn-main{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px;overflow-y:auto;max-height:calc(100vh - 160px)}
+.kp-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:16px}
+.kp-tab{padding:8px 16px;cursor:pointer;font-size:13px;color:var(--text2);border-bottom:2px solid transparent;transition:all .2s}
+.kp-tab.active{color:var(--primary);border-bottom-color:var(--primary)}
+.kp-content-section{display:none}.kp-content-section.active{display:block}
+.key-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.key-card{background:var(--bg);border-radius:6px;padding:12px;border-left:3px solid var(--primary)}
+.key-card .term{font-weight:600;font-size:14px;color:var(--primary);margin-bottom:4px}
+.key-card .def{font-size:13px;color:var(--text2)}
+.case-study{background:var(--warning-light);border-radius:6px;padding:16px;border-left:3px solid var(--warning)}
+.exam-tips-box{background:var(--success-light);border-radius:6px;padding:16px;border-left:3px solid var(--success)}
+.quiz-setup{text-align:center;padding:40px}
+.quiz-question{padding:20px}
+.quiz-question .q-text{font-size:16px;font-weight:500;margin-bottom:20px;line-height:1.8}
+.quiz-option{padding:12px 16px;border:1px solid var(--border);border-radius:6px;margin-bottom:8px;cursor:pointer;transition:all .15s;font-size:14px}
+.quiz-option:hover{border-color:var(--primary);background:var(--primary-light)}
+.quiz-option.selected{border-color:var(--primary);background:var(--primary-light)}
+.quiz-option.correct{border-color:var(--success);background:var(--success-light)}
+.quiz-option.wrong{border-color:var(--error);background:var(--error-light)}
+.quiz-explanation{background:var(--bg);border-radius:6px;padding:16px;margin-top:16px;font-size:14px;color:var(--text2);line-height:1.8}
+.quiz-progress{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.quiz-progress .qp-bar{flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+.quiz-progress .qp-fill{height:100%;background:var(--primary);border-radius:3px;transition:width .3s}
+.quiz-result{text-align:center;padding:30px}.quiz-result .score{font-size:48px;font-weight:700;color:var(--primary)}
+.exam-layout{display:grid;grid-template-columns:1fr 240px;gap:16px}
+.exam-nav-panel{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;position:sticky;top:100px}
+.exam-nav-panel .q-num{width:36px;height:36px;display:inline-flex;align-items:center;justify-content:center;border-radius:4px;font-size:12px;margin:2px;cursor:pointer;border:1px solid var(--border);transition:all .15s}
+.exam-nav-panel .q-num:hover{border-color:var(--primary)}
+.exam-nav-panel .q-num.answered{background:var(--primary-light);border-color:var(--primary);color:var(--primary)}
+.exam-nav-panel .q-num.current{background:var(--primary);color:#fff}
+.exam-nav-panel .q-num.flagged{background:var(--warning-light);border-color:var(--warning)}
+.exam-timer{font-size:24px;font-weight:700;text-align:center;padding:12px;color:var(--error)}
+.exam-timer.warning{animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.calendar-header{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:8px}
+.calendar-header span{text-align:center;font-size:13px;color:var(--text3);font-weight:600}
+.cal-cell{aspect-ratio:1;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:12px;cursor:pointer;transition:all .15s;min-height:40px}
+.cal-cell:hover{opacity:.8}.cal-cell.empty{background:transparent;cursor:default}
+.cal-cell.future{background:var(--border);color:var(--text3)}
+.cal-cell.good{background:#00A870;color:#fff}.cal-cell.ok{background:#52C41A;color:#fff}
+.cal-cell.missed{background:#E34D59;color:#fff}.cal-cell.review{background:#0052D9;color:#fff}
+.cal-cell.today{outline:2px solid var(--primary);outline-offset:1px}
+.modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.4);z-index:200;align-items:center;justify-content:center}
+.modal-overlay.show{display:flex}
+.modal{background:var(--card);border-radius:var(--radius);padding:24px;max-width:500px;width:90%;max-height:80vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.15)}
+.modal-title{font-size:18px;font-weight:600;margin-bottom:16px}
+.modal-close{float:right;cursor:pointer;font-size:20px;color:var(--text3);background:none;border:none}
+.text-center{text-align:center}.text-right{text-align:right}
+.mt-8{margin-top:8px}.mt-16{margin-top:16px}.mt-24{margin-top:24px}.mb-8{margin-bottom:8px}.mb-16{margin-bottom:16px}
+.flex{display:flex}.flex-between{display:flex;justify-content:space-between;align-items:center}.gap-8{gap:8px}.gap-16{gap:16px}
+textarea{width:100%;border:1px solid var(--border);border-radius:6px;padding:10px;font-size:13px;font-family:inherit;resize:vertical;min-height:80px}
+textarea:focus{outline:none;border-color:var(--primary)}
+.alert{padding:12px 16px;border-radius:6px;margin-bottom:16px;font-size:13px}
+.alert-warning{background:var(--warning-light);color:#8B6914;border-left:3px solid var(--warning)}
+.alert-info{background:var(--primary-light);color:var(--primary);border-left:3px solid var(--primary)}
+.alert-success{background:var(--success-light);color:#006644;border-left:3px solid var(--success)}
+.tf-question{background:var(--bg);padding:12px;border-radius:6px;margin-bottom:8px}
+.tf-question p{font-size:14px;margin-bottom:8px}
+.flag-btn{cursor:pointer;font-size:18px;background:none;border:none;color:var(--text3)}
+.flag-btn.flagged{color:var(--warning)}
+.weakness-list{list-style:none}.weakness-list li{padding:8px 12px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;font-size:13px}.weakness-list li:last-child{border-bottom:none}
+.resource-layout{display:grid;grid-template-columns:300px 1fr;gap:16px;min-height:calc(100vh - 160px)}
+.resource-sidebar{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);overflow-y:auto;max-height:calc(100vh - 160px);padding:12px 0}
+.resource-sidebar .res-group{padding:4px 0;border-bottom:1px solid var(--border)}
+.resource-sidebar .res-group-title{padding:8px 16px;font-size:12px;font-weight:600;color:var(--primary);background:var(--primary-light)}
+.resource-sidebar .res-item{padding:10px 16px;cursor:pointer;font-size:13px;display:flex;flex-direction:column;gap:4px;transition:background .15s}
+.resource-sidebar .res-item:hover{background:var(--bg)}
+.resource-sidebar .res-item.active{background:var(--primary-light);color:var(--primary);font-weight:600}
+.resource-sidebar .res-item .res-title{display:flex;align-items:center;gap:6px}
+.resource-sidebar .res-item .res-meta{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--text3);font-weight:400}
+.resource-sidebar .res-item .res-progress{width:100%;height:4px;background:var(--border);border-radius:2px;overflow:hidden}
+.resource-sidebar .res-item .res-progress .fill{height:100%;background:var(--success);border-radius:2px;transition:width .3s}
+.resource-main{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px;overflow-y:auto;max-height:calc(100vh - 160px)}
+.resource-main .res-header{margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+.resource-main .res-header h2{font-size:20px;margin-bottom:8px}
+.resource-main .res-header .res-info{font-size:13px;color:var(--text3);display:flex;gap:16px;flex-wrap:wrap}
+.resource-main .res-content{font-size:14px;line-height:1.8;color:var(--text2)}
+.resource-main .res-content h3{font-size:16px;font-weight:600;color:var(--text);margin:20px 0 12px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.resource-main .res-content h4{font-size:15px;font-weight:600;color:var(--text);margin:16px 0 8px}
+.resource-main .res-content p{margin-bottom:12px}
+.resource-main .res-content ul,.resource-main .res-content ol{margin:8px 0 12px 20px}
+.resource-main .res-content li{margin-bottom:6px}
+.resource-main .res-content code{background:var(--bg);padding:2px 6px;border-radius:3px;font-size:13px;color:var(--primary)}
+.resource-main .res-content pre{background:var(--bg);padding:16px;border-radius:6px;overflow-x:auto;margin:12px 0;font-size:13px;line-height:1.6}
+.resource-main .res-content blockquote{border-left:3px solid var(--primary);padding:8px 16px;margin:12px 0;background:var(--primary-light);border-radius:0 6px 6px 0;color:var(--text2)}
+.resource-main .res-content a{color:var(--primary);text-decoration:none}
+.resource-main .res-content a:hover{text-decoration:underline}
+.resource-main .res-nav{display:flex;justify-content:space-between;margin-top:24px;padding-top:16px;border-top:1px solid var(--border)}
+.resource-main .res-external-link{display:inline-flex;align-items:center;gap:6px;margin-top:12px;padding:8px 16px;background:var(--bg);border-radius:6px;color:var(--primary);text-decoration:none;font-size:13px;transition:all .2s}
+.resource-main .res-external-link:hover{background:var(--primary-light)}
+.summary-layout{display:grid;grid-template-columns:280px 1fr;gap:16px;min-height:calc(100vh - 160px)}
+.summary-sidebar{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;overflow-y:auto;max-height:calc(100vh - 160px)}
+.summary-sidebar .search-box{width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:6px;font-size:13px;margin-bottom:12px}
+.summary-sidebar .search-box:focus{outline:none;border-color:var(--primary)}
+.summary-sidebar .filter-section{margin-bottom:16px}
+.summary-sidebar .filter-title{font-size:12px;font-weight:600;color:var(--text3);margin-bottom:8px;text-transform:uppercase}
+.summary-sidebar .filter-item{padding:6px 12px;cursor:pointer;font-size:13px;border-radius:4px;margin-bottom:4px;transition:background .15s}
+.summary-sidebar .filter-item:hover{background:var(--bg)}
+.summary-sidebar .filter-item.active{background:var(--primary-light);color:var(--primary);font-weight:600}
+.summary-sidebar .summary-list{margin-top:12px}
+.summary-sidebar .summary-item{padding:10px 12px;cursor:pointer;border-radius:6px;margin-bottom:6px;border:1px solid var(--border);transition:all .15s}
+.summary-sidebar .summary-item:hover{border-color:var(--primary);background:var(--primary-light)}
+.summary-sidebar .summary-item.active{border-color:var(--primary);background:var(--primary-light)}
+.summary-sidebar .summary-item .s-title{font-size:13px;font-weight:600;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.summary-sidebar .summary-item .s-meta{font-size:11px;color:var(--text3)}
+.summary-main{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px;overflow-y:auto;max-height:calc(100vh - 160px)}
+.summary-main .empty-state{text-align:center;padding:60px 20px;color:var(--text3)}
+.summary-main .empty-state .empty-icon{font-size:48px;margin-bottom:16px}
+.summary-main .summary-header{margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+.summary-main .summary-header h2{font-size:20px;margin-bottom:8px}
+.summary-main .summary-meta{font-size:12px;color:var(--text3);display:flex;gap:16px;flex-wrap:wrap}
+.summary-main .summary-content{font-size:14px;line-height:1.8;color:var(--text2);white-space:pre-wrap}
+.summary-main .summary-actions{margin-top:24px;padding-top:16px;border-top:1px solid var(--border);display:flex;gap:8px}
+.summary-form{display:flex;flex-direction:column;gap:12px}
+.summary-form label{font-size:13px;font-weight:600;color:var(--text)}
+.summary-form input,.summary-form textarea,.summary-form select{width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:6px;font-size:13px;font-family:inherit}
+.summary-form input:focus,.summary-form textarea:focus,.summary-form select:focus{outline:none;border-color:var(--primary)}
+.summary-form textarea{min-height:120px;resize:vertical}
+.summary-form .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.modal.wide{max-width:920px;width:94%}
+.summary-form .label-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.summary-form #sumContent{min-height:280px;line-height:1.7}
+.btn-mini{padding:4px 10px;font-size:12px;border:1px solid var(--primary);color:var(--primary);background:#fff;border-radius:6px;cursor:pointer;white-space:nowrap}
+.btn-mini:hover{background:var(--primary-light)}
+.editor-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.35);z-index:299}
+.editor-overlay.show{display:block}
+.editor-panel{position:fixed;z-index:300;width:800px;height:600px;min-width:360px;min-height:220px;background:var(--card);border-radius:var(--radius);box-shadow:0 16px 48px rgba(0,0,0,.28);display:flex;flex-direction:column;overflow:hidden}
+.editor-head{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);background:var(--primary-light);cursor:move;user-select:none;flex:none}
+.editor-head .editor-title{font-size:15px;font-weight:600;color:var(--primary)}
+.editor-head .editor-hint{font-size:11px;color:var(--text3);flex:1}
+.editor-head .modal-close{float:none;font-size:18px;line-height:1}
+.editor-text{flex:1;width:100%;border:none;border-radius:0;padding:16px;font-size:14px;line-height:1.8;font-family:inherit;resize:none;outline:none;box-sizing:border-box}
+.editor-foot{flex:none;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 28px 12px 16px;border-top:1px solid var(--border)}
+.editor-count{font-size:12px;color:var(--text3)}
+.editor-resize{position:absolute;right:0;bottom:0;width:18px;height:18px;cursor:nwse-resize;background:linear-gradient(135deg,transparent 50%,var(--text3) 50%,var(--text3) 60%,transparent 60%,transparent 70%,var(--text3) 70%,var(--text3) 80%,transparent 80%)}
+.mark-bar{flex:none;display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:8px 16px;border-bottom:1px solid var(--border);background:var(--bg)}
+.mark-bar .mk-label{font-size:12px;color:var(--text2);font-weight:600}
+.mk-btn{padding:3px 10px;border:1px solid var(--border);border-radius:5px;cursor:pointer;font-size:12px;background:#fff;color:var(--text);line-height:1.5}
+.mk-btn:hover{border-color:var(--text3)}
+.mk-btn.y{background:#FFF1A8}.mk-btn.g{background:#B7F0CE}.mk-btn.r{background:#FFCDD2}.mk-btn.b{background:#C6DEFF}
+.mk-btn.tr{color:#D92B2B;font-weight:600}.mk-btn.tb{color:#0052D9;font-weight:600}
+.mk-sep{width:1px;height:18px;background:var(--border);margin:0 2px}
+.mk-tip{font-size:11px;color:var(--text3);margin-left:auto}
+.editor-preview{flex:1;display:none;overflow:auto;padding:16px;font-size:14px;line-height:1.9;white-space:pre-wrap;box-sizing:border-box;background:#fff}
+.mk-y{background:#FFF1A8;border-radius:2px;padding:0 2px}
+.mk-g{background:#B7F0CE;border-radius:2px;padding:0 2px}
+.mk-r{background:#FFCDD2;border-radius:2px;padding:0 2px}
+.mk-b{background:#C6DEFF;border-radius:2px;padding:0 2px}
+.mk-tr{color:#D92B2B;font-weight:600}
+.mk-tb{color:#0052D9;font-weight:600}
+.find-hit{background:#FFE08A;box-shadow:inset 0 0 0 1px #FA8C16;border-bottom:2px solid #FA8C16;border-radius:2px;padding:0 2px;color:var(--text);font-weight:inherit}
+@media(max-width:768px){.resource-layout{grid-template-columns:1fr}.resource-sidebar{max-height:200px}}
+@media(max-width:768px){.grid-4{grid-template-columns:1fr 1fr}.grid-3,.grid-2{grid-template-columns:1fr}.learn-layout{grid-template-columns:1fr}.learn-sidebar{max-height:200px}.exam-layout{grid-template-columns:1fr}.key-cards{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header class="app-header">
+<div class="app-title">FDE认证备考追踪系统<small>腾讯云ADP</small></div>
+<div class="exam-countdown" id="examCountdown">距离考试: --天</div>
+</header>
+<nav class="nav-tabs" id="navTabs">
+<div class="nav-tab active" data-view="dashboard">仪表盘</div>
+<div class="nav-tab" data-view="learn">学习中心</div>
+<div class="nav-tab" data-view="quiz">每日测验</div>
+<div class="nav-tab" data-view="exam">模拟考试</div>
+<div class="nav-tab" data-view="calendar">日历</div>
+<div class="nav-tab" data-view="stats">统计</div>
+<div class="nav-tab" data-view="resources">资源中心</div>
+<div class="nav-tab" data-view="summaries">知识摘要</div>
+</nav>
+<div class="view active" id="view-dashboard"></div>
+<div class="view" id="view-learn"></div>
+<div class="view" id="view-quiz"></div>
+<div class="view" id="view-exam"></div>
+<div class="view" id="view-calendar"></div>
+<div class="view" id="view-stats"></div>
+<div class="view" id="view-resources"></div>
+<div class="view" id="view-summaries"></div>
+<div class="modal-overlay" id="modalOverlay"><div class="modal" id="modalContent"></div></div>
+<div class="editor-overlay" id="editorOverlay"></div>
+<div class="editor-panel" id="editorPanel" style="display:none">
+<div class="editor-head" id="editorHead">
+<span class="editor-title">内容书写</span>
+<span class="editor-hint">拖动标题栏移动 · 拖右下角改变大小 · Ctrl+Enter 确定</span>
+<button class="modal-close" onclick="closeBigEditor(false)">✕</button>
+</div>
+<div class="mark-bar">
+<span class="mk-label">选中文字后点色块：</span>
+<button class="mk-btn y" type="button" onclick="applyMark('y')" title="黄底 · 重点">重点</button>
+<button class="mk-btn g" type="button" onclick="applyMark('g')" title="绿底 · 必背结论">必背</button>
+<button class="mk-btn r" type="button" onclick="applyMark('r')" title="红底 · 易错易混">易错</button>
+<button class="mk-btn b" type="button" onclick="applyMark('b')" title="蓝底 · 存疑待查">存疑</button>
+<span class="mk-sep"></span>
+<button class="mk-btn tr" type="button" onclick="applyMark('tr')" title="红色文字">红字</button>
+<button class="mk-btn tb" type="button" onclick="applyMark('tb')" title="蓝色文字">蓝字</button>
+<span class="mk-sep"></span>
+<button class="mk-btn" type="button" onclick="clearMark()">清除标记</button>
+<button class="mk-btn" type="button" id="mkPreviewBtn" onclick="toggleMarkPreview()">👁 预览高亮</button>
+<span class="mk-tip">同色再点一次取消 · 标记只作用于选中范围</span>
+</div>
+<textarea class="editor-text" id="editorText" placeholder="在这里输入或粘贴知识要点，可自由换行排版..."></textarea>
+<div class="editor-preview" id="editorPreview"></div>
+<div class="editor-foot">
+<span class="editor-count" id="editorCount">0 字</span>
+<div style="display:flex;gap:8px">
+<button class="btn btn-mini" onclick="expandEditor()">⤢ 全屏</button>
+<button class="btn btn-outline" onclick="closeBigEditor(false)">取消</button>
+<button class="btn btn-primary" onclick="closeBigEditor(true)">确定</button>
+</div>
+</div>
+<div class="editor-resize" id="editorResize"></div>
+</div>
+<script>
+'use strict';
+// ==================== DATA ====================
+const KP = [{"id": "1.1", "title": "AI发展历程与FDE岗位定位", "module": 1, "moduleName": "AI与生成式AI基础", "examWeight": "2%", "week": 1, "day": 1, "officialContent": "腾讯云ADP FDE官方学习中心指出：FDE（Forward Deployed Engineer，前沿部署工程师）的概念最早源自Palantir，指驻扎在客户现场、兼具工程能力与业务理解力的技术角色。AI发展经历了1.0（规则专家系统）、2.0（深度学习）、3.0（大模型+Agent）三个阶段。FDE在AI 3.0时代的核心价值是将企业业务需求翻译为AI可执行的方案，并端到端交付。", "explanation": "通俗解读：想象你开了一家餐厅，厨师（大模型）很厉害但不懂顾客口味，服务员（传统销售）懂客户但不会做菜。FDE就是那个既懂烹饪又会跟客人聊天的人——他站在客户身边，把客户的需求告诉厨房，还把菜端上桌。AI 1.0像按菜谱做菜（规则），2.0像厨师学会了看图片认食材（深度学习），3.0像厨师自己会创新菜还能跟客人互动（大模型+Agent）。", "caseStudy": {"title": "某银行FDE落地案例", "content": "某大型银行希望用AI提升客服效率。FDE团队驻场3周，梳理了200+高频问题，发现60%可通过知识库+Agent自动回答。FDE设计了RAG方案，将准确率从65%提升到92%，上线后客服人力成本降低40%。"}, "keyCards": [{"term": "FDE", "definition": "Forward Deployed Engineer，前沿部署工程师，驻扎客户现场的全栈技术角色"}, {"term": "AI 1.0", "definition": "基于规则和专家系统的传统AI，如决策树、产生式规则"}, {"term": "AI 2.0", "definition": "基于深度学习的AI，如CNN、RNN，需要大量标注数据"}, {"term": "AI 3.0", "definition": "基于大模型和Agent的新一代AI，具备理解、推理、工具使用能力"}], "examTips": "高频考点：FDE的定义与起源（Palantir）、AI三个阶段的核心区别、FDE在企业AI落地中的角色定位。注意区分FDE与传统售前/售后工程师的差异。", "relatedLinks": [{"text": "腾讯云ADP官方文档", "url": "https://cloud.tencent.com/product/adx"}]}, {"id": "1.2", "title": "Transformer架构原理", "module": 1, "moduleName": "AI与生成式AI基础", "examWeight": "3%", "week": 1, "day": 2, "officialContent": "Transformer是2017年Google在《Attention Is All You Need》论文中提出的架构。其核心是自注意力机制（Self-Attention），通过Query、Key、Value三个矩阵计算token之间的关联度。Transformer由编码器（Encoder）和解码器（Decoder）组成，BERT使用编码器，GPT使用解码器。位置编码（Positional Encoding）用于补充序列顺序信息。", "explanation": "通俗解读：想象你在一个聚会上，每个人（token）都在听别人说话。自注意力机制就像每个人都在评估'我应该更关注谁的发言'。Query是'我想了解什么'，Key是'我有什么特点'，Value是'我实际要说的内容'。位置编码就像给每个人发了座位号，不然大家不知道谁先谁后。", "caseStudy": {"title": "Transformer在客服场景的应用", "content": "某企业使用基于Transformer的BERT模型做意图识别。通过微调，将客户问题的分类准确率从78%提升到95%。FDE团队发现，调整注意力头的数量对长文本理解影响显著。"}, "keyCards": [{"term": "Self-Attention", "definition": "自注意力机制，计算序列中每个位置与其他位置的关联度"}, {"term": "Q/K/V", "definition": "Query/Key/Value，自注意力的三个投影矩阵"}, {"term": "Positional Encoding", "definition": "位置编码，为token注入序列顺序信息"}, {"term": "Encoder-Decoder", "definition": "编码器-解码器架构，编码器理解输入，解码器生成输出"}], "examTips": "高频考点：Transformer的核心组件、Q/K/V的计算逻辑、BERT与GPT的架构区别。", "relatedLinks": [{"text": "Attention Is All You Need", "url": "https://arxiv.org/abs/1706.03762"}]}, {"id": "1.3", "title": "大语言模型LLM", "module": 1, "moduleName": "AI与生成式AI基础", "examWeight": "3%", "week": 1, "day": 3, "officialContent": "大语言模型（LLM）是基于Transformer架构、在海量文本上预训练的超大规模语言模型。GPT系列采用自回归方式逐token生成，BERT采用掩码语言模型做双向理解。关键概念包括Tokenization、Temperature（控制输出随机性）、Top-p（核采样）。预训练+微调是当前主流训练范式。", "explanation": "通俗解读：LLM就像一个读了整个互联网的超级学霸。Tokenization就像把一句话拆成词语卡片喂给它。Temperature就像考试时的'冒险指数'——设为0就是只选最有把握的答案，设高了就会尝试冷门答案。Top-p就像从'最有把握的前N个答案'里随机选。预训练是通识教育，微调是专业培训。", "caseStudy": {"title": "LLM选型对比", "content": "某企业需要部署智能客服，FDE团队对比了GPT-4、文心一言、混元大模型。在中文场景下，混元在本地化知识和合规性上表现更好，且支持私有化部署。最终选择混元作为基座模型。"}, "keyCards": [{"term": "Tokenization", "definition": "分词，将文本切分为模型可处理的最小单元"}, {"term": "Temperature", "definition": "温度参数，控制生成随机性。0=确定性，高=更随机"}, {"term": "Top-p", "definition": "核采样参数，从累积概率不超过p的token集合中采样"}, {"term": "预训练+微调", "definition": "先在大规模语料上学习通用能力，再在特定任务上精调"}], "examTips": "高频考点：Tokenization的概念、Temperature和Top-p的作用与区别、预训练与微调的范式。", "relatedLinks": [{"text": "GPT论文", "url": "https://openai.com/research"}]}, {"id": "1.4", "title": "Prompt Engineering", "module": 1, "moduleName": "AI与生成式AI基础", "examWeight": "2%", "week": 1, "day": 4, "officialContent": "Prompt Engineering是通过精心设计输入提示来引导大模型输出期望结果的技术。核心方法包括Zero-shot（直接提问）、Few-shot（提供示例）、Chain-of-Thought/CoT（逐步推理）。角色提示通过设定角色身份提升专业性。模板设计应包含角色、背景、任务、格式要求、约束条件。", "explanation": "通俗解读：跟LLM对话就像给新来的实习生布置任务。Zero-shot就像直接说'帮我写个报告'。Few-shot就像先给他看两个优秀范例。CoT就像要求他'先列提纲，再写正文'。角色提示就像告诉他'你是一个有10年经验的数据分析师'。好的Prompt就像好的工作说明书。", "caseStudy": {"title": "Prompt优化提升客服质量", "content": "某电商客服Agent初始Prompt简单描述为'回答客户问题'，准确率仅68%。FDE优化为包含角色定义、知识库引用规则、回答格式的结构化Prompt后，准确率提升至91%。"}, "keyCards": [{"term": "Zero-shot", "definition": "零样本提示，直接提问不提供示例"}, {"term": "Few-shot", "definition": "少样本提示，提供2-5个示例引导输出"}, {"term": "CoT", "definition": "Chain-of-Thought，思维链，要求展示推理过程"}, {"term": "Role Prompting", "definition": "角色提示，设定角色身份提升专业性"}], "examTips": "高频考点：Zero-shot/Few-shot/CoT的区别与应用场景、Prompt的基本结构要素。", "relatedLinks": [{"text": "Prompt Engineering Guide", "url": "https://www.promptingguide.ai/zh"}]}, {"id": "1.5", "title": "AI Agent概念与架构", "module": 1, "moduleName": "AI与生成式AI基础", "examWeight": "2%", "week": 1, "day": 5, "officialContent": "AI Agent是能够自主感知环境、进行推理、采取行动的智能体。核心架构遵循'感知-推理-行动'循环。ReAct模式将推理和行动结合。工具使用让Agent能调用外部API、数据库等扩展能力。记忆系统包括短期记忆（对话上下文）和长期记忆（向量数据库）。", "explanation": "通俗解读：AI Agent就像一个有手有脚还会思考的超级助手。普通LLM只能聊天，Agent还能'干活'——查数据库、调API、发邮件。感知就像用眼睛看，推理就像用脑子想，行动就像用手做。ReAct模式就像'先想清楚再动手'。", "caseStudy": {"title": "运维Agent自动化", "content": "某互联网公司的运维Agent实现了故障自动诊断。当监控系统报警时，Agent感知到告警信息，推理可能的故障原因，然后自动执行日志查询、服务重启等操作。故障平均恢复时间从30分钟降至5分钟。"}, "keyCards": [{"term": "AI Agent", "definition": "能自主感知环境、推理决策、采取行动的智能体"}, {"term": "ReAct", "definition": "Reasoning+Acting，先推理再行动的Agent执行模式"}, {"term": "Tool Use", "definition": "工具使用，Agent调用外部API/数据库扩展能力"}, {"term": "记忆系统", "definition": "短期记忆（对话上下文）+长期记忆（向量数据库）"}], "examTips": "高频考点：Agent的核心架构、ReAct模式、工具使用、短期记忆与长期记忆的区别。", "relatedLinks": [{"text": "ReAct论文", "url": "https://arxiv.org/abs/2210.03629"}]}, {"id": "1.6", "title": "智能体开发流程", "module": 1, "moduleName": "AI与生成式AI基础", "examWeight": "1%", "week": 1, "day": 6, "officialContent": "智能体开发遵循完整生命周期：需求分析→设计→开发→测试→部署→迭代。需求分析需明确业务目标、用户画像、成功指标。设计包括Agent架构、工具选型、Prompt设计。开发在ADP平台上配置。测试进行功能测试、效果评测。部署配置监控。迭代根据反馈优化。", "explanation": "通俗解读：开发Agent就像装修房子。需求分析是'你想要什么样的家'，设计是'画图纸'，开发是'施工'，测试是'验收'，部署是'搬进去住'，迭代是'住了一段时间后调整'。很多团队跳过需求分析直接开发，就像不量尺寸就买家具。", "caseStudy": {"title": "Agent开发全流程实践", "content": "某制造企业开发质检Agent。需求分析：每天检查500+零件，人工漏检率8%。设计：视觉检测Agent+知识库+工作流。开发：在ADP平台配置，3天完成原型。测试：用1000张历史图片验证，准确率96%。部署后漏检率降至1.2%。"}, "keyCards": [{"term": "需求分析", "definition": "明确业务目标、用户画像、成功指标"}, {"term": "POC", "definition": "Proof of Concept，概念验证，快速验证方案可行性"}, {"term": "迭代优化", "definition": "根据用户反馈和数据持续改进Agent效果"}, {"term": "ADP平台", "definition": "腾讯云应用开发平台，提供低代码Agent开发环境"}], "examTips": "高频考点：智能体开发的完整流程、各阶段关键产出物、POC的重要性。", "relatedLinks": [{"text": "腾讯云ADP开发指南", "url": "https://cloud.tencent.com/product/adx"}]}, {"id": "2.1", "title": "腾讯云ADP平台概述", "module": 2, "moduleName": "ADP核心功能与应用搭建", "examWeight": "3%", "week": 2, "day": 1, "officialContent": "腾讯云ADP是面向企业的AI应用开发平台，定位为'让企业快速构建AI原生应用'。架构分四层：基础设施层（GPU集群）、模型服务层（多模型接入）、能力层（知识库、工作流、Agent框架）、应用层（可视化配置）。ADP与OpenClaw的关系：OpenClaw提供底层能力，ADP封装了企业级特性。", "explanation": "通俗解读：ADP就像一个'AI应用的安卓系统'。就像安卓手机不需要你从零写操作系统，ADP让企业不需要从零搭建AI基础设施。底层是GPU和模型（像芯片），中间是知识库和工作流（像框架层），上面是可视化界面（像APP）。OpenClaw是开源的'安卓源码'，ADP是腾讯做的'定制ROM'。", "caseStudy": {"title": "ADP在某政务平台的部署", "content": "某省级政务平台选择ADP构建智能问答系统。看中的是企业级特性：多租户隔离、审计日志、私有化部署。上线后，日均处理咨询量从2000提升至15000，群众满意度从72%提升至89%。"}, "keyCards": [{"term": "ADP", "definition": "Application Development Platform，腾讯云AI应用开发平台"}, {"term": "OpenClaw", "definition": "腾讯云开源AI框架，ADP的底层技术基础"}, {"term": "企业级特性", "definition": "权限管理、审计日志、多租户隔离、私有化部署"}, {"term": "四层架构", "definition": "基础设施层→模型服务层→能力层→应用层"}], "examTips": "高频考点：ADP的四层架构、ADP与OpenClaw的关系、企业级特性。", "relatedLinks": [{"text": "腾讯云ADP产品页", "url": "https://cloud.tencent.com/product/adx"}]}, {"id": "2.2", "title": "应用类型与创建流程", "module": 2, "moduleName": "ADP核心功能与应用搭建", "examWeight": "4%", "week": 2, "day": 2, "officialContent": "ADP支持三种应用类型：简单Agent（单一LLM+工具）、工作流Agent（工作流编排复杂逻辑）、Multi-Agent（多Agent协作）。创建流程：选择类型→配置模型→设计提示词→接入知识库→配置工具→测试→发布。简单Agent开发快但能力有限，Multi-Agent能力强但成本高。", "explanation": "通俗解读：三种应用类型就像三种餐厅。简单Agent像快餐店——出餐快但选择有限。工作流Agent像自助餐厅——有固定流程但每步灵活。Multi-Agent像大型宴会——有主厨和各专业师傅协同完成。选择哪种取决于你的'宴会规模'。", "caseStudy": {"title": "三种应用类型对比", "content": "某电商先部署简单Agent做商品推荐。升级为工作流Agent后处理退换货流程。最终采用Multi-Agent：客服+物流+财务Agent协同，实现80%售后全自动处理。"}, "keyCards": [{"term": "简单Agent", "definition": "单一LLM+工具，适合简单问答"}, {"term": "工作流Agent", "definition": "通过工作流编排复杂逻辑"}, {"term": "Multi-Agent", "definition": "多个Agent协作完成复杂任务"}, {"term": "版本发布", "definition": "发布为可调用版本，支持灰度和回滚"}], "examTips": "高频考点：三种应用类型的区别与适用场景、创建流程步骤。", "relatedLinks": [{"text": "ADP应用开发文档", "url": "https://cloud.tencent.com/document/product/adx"}]}, {"id": "2.3", "title": "模型接入与管理", "module": 2, "moduleName": "ADP核心功能与应用搭建", "examWeight": "3%", "week": 2, "day": 3, "officialContent": "ADP支持接入多家模型提供商：混元、DeepSeek、ChatGLM、Llama等。配置包括API端点、密钥、并发限制。切换策略：按场景路由、按负载分流、按成本优化。不同模型能力边界不同：参数量影响推理能力、上下文窗口影响长文本处理。", "explanation": "通俗解读：模型接入就像餐厅选厨师。混元是腾讯的'主厨'，中文能力强；DeepSeek像'海归厨师'，逻辑推理厉害；开源模型像'自培厨师'。按场景路由就像简单菜让学徒做，复杂菜让主厨上。", "caseStudy": {"title": "多模型路由策略", "content": "某金融客户部署双模型策略：混元Lite处理80%常规咨询，混元Turbo处理20%复杂分析。整体成本降低55%，关键场景准确率保持95%以上。"}, "keyCards": [{"term": "模型提供商", "definition": "提供LLM API服务的企业"}, {"term": "智能路由", "definition": "根据场景/负载/成本自动选择模型"}, {"term": "能力边界", "definition": "模型的能力范围限制"}, {"term": "并发限制", "definition": "API同时处理请求的最大数量"}], "examTips": "高频考点：模型接入配置要素、智能路由策略、成本与效果平衡。", "relatedLinks": [{"text": "ADP模型管理文档", "url": "https://cloud.tencent.com/document/product/adx/model"}]}, {"id": "2.4", "title": "知识库系统", "module": 2, "moduleName": "ADP核心功能与应用搭建", "examWeight": "4%", "week": 2, "day": 4, "officialContent": "知识库是RAG系统核心组件。支持PDF、Word、Excel、Markdown等。解析Pipeline：上传→格式识别→文本提取→清洗→分块→向量化→存储。分块策略：固定长度分块、语义分块、递归分块。Chunk overlap确保相邻块有重叠，避免信息在边界丢失。", "explanation": "通俗解读：知识库就像超级图书管理员。把书拆成卡片（分块），给每张卡片编'语义密码'（向量化）。固定分块像用尺子量着切。语义分块像按自然段切。递归分块像先切章节再切段落。Overlap就像切蛋糕时每刀稍微重叠，确保不把樱桃切到两半。", "caseStudy": {"title": "分块策略优化", "content": "某律所初始使用固定500token分块，准确率71%。改用语义分块后提升至86%。添加20%overlap后达91%。最终采用递归分块+15%overlap，准确率93%。"}, "keyCards": [{"term": "分块策略", "definition": "将长文档切分为适合检索的小块"}, {"term": "固定分块", "definition": "按固定token数切分"}, {"term": "语义分块", "definition": "按自然语义边界切分"}, {"term": "Chunk Overlap", "definition": "相邻块之间的重叠部分"}], "examTips": "高频考点：三种分块策略的区别与优缺点、Chunk Overlap的作用。", "relatedLinks": [{"text": "ADP知识库文档", "url": "https://cloud.tencent.com/document/product/adx/knowledge"}]}, {"id": "2.5", "title": "RAG检索增强生成", "module": 2, "moduleName": "ADP核心功能与应用搭建", "examWeight": "4%", "week": 2, "day": 5, "officialContent": "RAG将信息检索与LLM生成结合。流程：提问→Embedding转向量→向量检索→注入上下文→LLM生成。Embedding模型将文本映射到高维空间。召回率vs精确率。混合检索结合向量检索和关键词检索。", "explanation": "通俗解读：RAG就像开卷考试。LLM是考生，知识库是参考书。Embedding给参考书编索引。混合检索就像同时用目录查找（关键词）和按内容查找（语义）。召回率是'该找到的找到了多少'，精确率是'找到的里面有多少是对的'。", "caseStudy": {"title": "混合检索提升效果", "content": "某医疗机构纯向量检索对药品编号查询召回率仅52%。加入BM25关键词检索后提升至89%。使用RRF融合两路结果，整体准确率提升18%。"}, "keyCards": [{"term": "RAG", "definition": "检索增强生成，结合检索和LLM生成"}, {"term": "Embedding", "definition": "将文本映射为高维向量"}, {"term": "召回率", "definition": "所有相关文档中被检索到的比例"}, {"term": "混合检索", "definition": "结合向量检索和关键词检索"}], "examTips": "高频考点：RAG完整流程、Embedding作用、召回率vs精确率、混合检索优势。", "relatedLinks": [{"text": "RAG论文", "url": "https://arxiv.org/abs/2005.11401"}]}, {"id": "2.6", "title": "知识库高级功能", "module": 2, "moduleName": "ADP核心功能与应用搭建", "examWeight": "3%", "week": 2, "day": 6, "officialContent": "高级功能包括多文档知识库、过滤条件、引用溯源、质量评估。多文档知识库支持文档间关联。过滤条件按来源、时间等缩小范围。引用溯源标注信息来源。质量评估指标包括准确率、引用相关性、幻觉率。", "explanation": "通俗解读：多文档知识库像系列丛书——整套管理。过滤条件像先确定'去哪个书架'。引用溯源像论文的参考文献——告诉你结论来自哪。质量评估像请专家检查图书馆服务质量。", "caseStudy": {"title": "引用溯源在合规场景", "content": "某保险公司在理赔审核中使用RAG。通过引用溯源，每个回答标注来源文档。合规审计通过率从60%提升至98%。"}, "keyCards": [{"term": "多文档知识库", "definition": "多个文档组织为统一知识库"}, {"term": "引用溯源", "definition": "回答中标注信息来源"}, {"term": "质量评估", "definition": "对回答质量的系统评估"}, {"term": "过滤条件", "definition": "按条件缩小检索范围"}], "examTips": "高频考点：引用溯源的实现与价值、质量评估指标、合规场景对引用的需求。", "relatedLinks": [{"text": "ADP知识库高级功能", "url": "https://cloud.tencent.com/document/product/adx/knowledge-advanced"}]}, {"id": "3.1", "title": "单Agent构建", "module": 3, "moduleName": "智能体开发", "examWeight": "3%", "week": 3, "day": 1, "officialContent": "单Agent是ADP中最基础的应用单元，由系统提示词、内置能力、工具集组成。系统提示词设计是Agent行为的核心，需要定义角色、能力边界、输出格式、异常处理。内置能力包括知识库检索、联网搜索、代码执行等。测试调试支持实时对话测试、日志查看、Prompt版本管理。", "explanation": "通俗解读：单Agent就像一个全能员工。系统提示词是他的'岗位说明书'——告诉他你是谁、该做什么、不该做什么、遇到问题怎么办。内置能力就像给他配备的工具箱——可以查资料、可以上网、可以算数。测试调试就像试用期——看他表现好不好，哪里需要调整。", "caseStudy": {"title": "单Agent构建实践", "content": "某教育机构构建学习助手Agent。系统提示词定义了'耐心、专业的辅导老师'角色，设定了不直接给答案而是引导思考的规则。配置了知识库（教材）和代码执行（数学计算）能力。经过5轮Prompt迭代，学生满意度从70%提升至92%。"}, "keyCards": [{"term": "系统提示词", "definition": "定义Agent角色、能力边界、输出格式的核心配置"}, {"term": "内置能力", "definition": "Agent自带的功能，如知识库检索、联网搜索"}, {"term": "Prompt迭代", "definition": "通过反复测试和优化改进提示词效果"}, {"term": "对话测试", "definition": "实时与Agent对话测试其行为和输出"}], "examTips": "高频考点：系统提示词的设计要素、内置能力的类型、Prompt迭代的方法。", "relatedLinks": [{"text": "ADP Agent开发文档", "url": "https://cloud.tencent.com/document/product/adx/agent"}]}, {"id": "3.2", "title": "工具调用与函数调用", "module": 3, "moduleName": "智能体开发", "examWeight": "4%", "week": 3, "day": 2, "officialContent": "工具调用（Tool/Function Calling）让Agent能够调用外部API和函数。工具定义包括名称、描述、参数Schema。Agent根据用户意图自动选择合适工具。API集成需要配置认证、超时、错误处理。MCP（Model Context Protocol）是标准化的工具接入协议。工具选择策略影响Agent的决策质量。", "explanation": "通俗解读：工具调用就像给员工配了各种系统的账号。他需要根据客户需求决定用哪个系统——查库存用ERP，查物流用WMS，查账目用财务系统。工具定义就像每个系统的操作手册——告诉员工这个系统能做什么、需要什么信息。MCP就像统一的登录门户——所有系统用同一个接口标准。", "caseStudy": {"title": "工具调用在电商场景", "content": "某电商Agent配置了5个工具：商品查询、库存检查、价格计算、物流追踪、订单创建。通过精心设计工具描述，Agent的工具选择准确率达94%。添加MCP协议后，新工具接入时间从2天缩短到2小时。"}, "keyCards": [{"term": "Tool Calling", "definition": "Agent调用外部工具/API的能力"}, {"term": "工具定义", "definition": "描述工具名称、功能、参数的Schema"}, {"term": "MCP", "definition": "Model Context Protocol，标准化工具接入协议"}, {"term": "工具选择", "definition": "Agent根据意图自动选择合适的工具"}], "examTips": "高频考点：工具定义的要素、MCP协议的作用、工具选择策略。", "relatedLinks": [{"text": "MCP协议文档", "url": "https://modelcontextprotocol.io"}]}, {"id": "3.3", "title": "工作流编排基础", "module": 3, "moduleName": "智能体开发", "examWeight": "4%", "week": 3, "day": 3, "officialContent": "工作流是将复杂任务分解为多个节点按顺序或分支执行的流程编排方式。节点类型包括：LLM节点（调用大模型）、条件节点（if/else分支）、代码节点（执行自定义代码）、HTTP节点（调用外部API）、知识检索节点（查询知识库）。变量在节点间传递。错误处理包括重试、降级、告警。", "explanation": "通俗解读：工作流就像工厂的流水线。每个工位（节点）做一件事——有的负责思考（LLM节点），有的负责判断（条件节点），有的负责计算（代码节点），有的负责打电话（HTTP节点），有的负责查资料（知识检索节点）。产品（数据）在流水线上传递（变量），每个工位加工后传给下一个。如果某个工位出问题（错误），可以重试、跳过或报警。", "caseStudy": {"title": "工作流编排实践", "content": "某保险公司理赔工作流：接收报案（HTTP）→判断案件类型（条件）→简单案件自动审核（LLM+知识检索）→复杂案件转人工（条件）→生成理赔报告（LLM）→发送通知（HTTP）。上线后自动处理率65%，平均处理时间从3天降至4小时。"}, "keyCards": [{"term": "工作流", "definition": "将复杂任务分解为节点按流程执行"}, {"term": "LLM节点", "definition": "调用大模型处理文本的节点"}, {"term": "条件节点", "definition": "根据条件执行不同分支的节点"}, {"term": "变量传递", "definition": "数据在节点间流转的机制"}], "examTips": "高频考点：各节点类型的功能与适用场景、变量传递机制、错误处理策略。", "relatedLinks": [{"text": "ADP工作流文档", "url": "https://cloud.tencent.com/document/product/adx/workflow"}]}, {"id": "3.4", "title": "标准模式工作流", "module": 3, "moduleName": "智能体开发", "examWeight": "3%", "week": 3, "day": 4, "officialContent": "标准模式工作流支持复杂的流程控制：分支合并（多条件判断后汇聚）、并行执行（多个节点同时运行）、循环结构（重复执行直到满足条件）、子工作流调用（将流程模块化复用）。标准模式适合需要精细控制的复杂业务场景。", "explanation": "通俗解读：标准模式工作流就像高级项目管理。分支合并像'如果A和B都通过了，才进入下一步'。并行执行像'同时让设计部和开发部开工，都完成后再合并'。循环像'每天检查一次，直到问题解决'。子工作流像'把某个标准流程打包，需要时直接调用'。", "caseStudy": {"title": "并行执行优化", "content": "某旅游平台行程规划工作流：原本串行执行（查机票→查酒店→查景点→生成方案），耗时12秒。改为并行执行（同时查机票、酒店、景点）后耗时4秒，用户体验大幅提升。"}, "keyCards": [{"term": "分支合并", "definition": "多条件判断后汇聚到同一节点"}, {"term": "并行执行", "definition": "多个节点同时运行提升效率"}, {"term": "循环结构", "definition": "重复执行直到满足退出条件"}, {"term": "子工作流", "definition": "将流程模块化，支持复用"}], "examTips": "高频考点：并行执行的适用场景、循环结构的退出条件、子工作流的复用价值。", "relatedLinks": [{"text": "ADP标准工作流文档", "url": "https://cloud.tencent.com/document/product/adx/workflow-advanced"}]}, {"id": "3.5", "title": "单工作流应用", "module": 3, "moduleName": "智能体开发", "examWeight": "2%", "week": 3, "day": 5, "officialContent": "单工作流应用是将整个应用逻辑封装在一个工作流中的模式。特点：逻辑清晰、易于调试、适合流程明确的场景。与标准模式对比：单工作流更简洁但灵活性较低。与Multi-Agent对比：单工作流不需要Agent间通信但无法处理需要多角色协作的场景。适用场景：客服SOP、审批流程、数据处理管道。", "explanation": "通俗解读：单工作流应用就像一个完整的操作手册——从头到尾按步骤执行，清晰明了。它不像Multi-Agent那样需要多个'员工'互相沟通，也不像标准模式那样可以灵活组合。它的优势是简单、好调试、好维护。适合那些'第一步做什么、第二步做什么'很明确的场景。", "caseStudy": {"title": "单工作流审批应用", "content": "某企业报销审批应用采用单工作流：提交申请→自动检查金额（条件）→小额自动审批（LLM判断合规性）→大额转主管审批→财务复核→完成通知。整个流程在一个工作流中实现，上线后审批时间从5天降至1天。"}, "keyCards": [{"term": "单工作流", "definition": "整个应用逻辑封装在一个工作流中"}, {"term": "适用场景", "definition": "流程明确的场景如客服SOP、审批流程"}, {"term": "与Multi-Agent对比", "definition": "单工作流简单但无法处理多角色协作"}], "examTips": "高频考点：单工作流的适用场景、与标准模式和Multi-Agent的对比。", "relatedLinks": [{"text": "ADP单工作流文档", "url": "https://cloud.tencent.com/document/product/adx/single-workflow"}]}, {"id": "3.6", "title": "Multi-Agent协作", "module": 3, "moduleName": "智能体开发", "examWeight": "4%", "week": 3, "day": 6, "officialContent": "Multi-Agent是多个Agent协作完成复杂任务的架构。设计包括：Agent角色定义、通信模式（串行/并行/层级）、任务分解策略、编排策略、冲突解决机制。串行模式一个Agent完成后传给下一个。并行模式多个Agent同时工作后汇总。层级模式由主Agent分配任务给子Agent。", "explanation": "通俗解读：Multi-Agent就像一个项目团队。有项目经理（编排Agent）分配任务，有工程师（技术Agent）写代码，有设计师（创意Agent）做方案，有测试员（质检Agent）检查质量。串行像接力赛——一个人跑完交给下一个。并行像分组讨论——各组同时讨论最后汇总。层级像公司管理——老板分配任务给部门经理。", "caseStudy": {"title": "Multi-Agent客服系统", "content": "某银行部署Multi-Agent客服：路由Agent（判断问题类型）→专业Agent（理财/贷款/信用卡各一个）→质检Agent（检查回答合规性）→总结Agent（生成服务记录）。复杂问题解决率从45%提升至82%。"}, "keyCards": [{"term": "Multi-Agent", "definition": "多个Agent协作完成复杂任务"}, {"term": "串行模式", "definition": "Agent依次处理，像接力赛"}, {"term": "并行模式", "definition": "Agent同时工作后汇总"}, {"term": "层级模式", "definition": "主Agent分配任务给子Agent"}], "examTips": "高频考点：三种通信模式的区别、任务分解策略、冲突解决机制。常考场景题：选择最合适的Multi-Agent架构。", "relatedLinks": [{"text": "Multi-Agent设计模式", "url": "https://cloud.tencent.com/document/product/adx/multi-agent"}]}, {"id": "4.1", "title": "客户需求分析方法", "module": 4, "moduleName": "场景理解与方案设计", "examWeight": "4%", "week": 4, "day": 1, "officialContent": "客户需求分析是FDE的核心能力。SPIN框架：Situation（了解现状）、Problem（发现问题）、Implication（分析影响）、Need-payoff（确认需求）。TDD框架：Technical（技术可行性）、Domain（业务领域知识）、Delivery（交付能力）。痛点识别需要区分表面需求和根本问题。可行性评估考虑技术、成本、时间三个维度。AI适用性判断：是否涉及大量文本处理、是否有明确的知识库、是否需要7x24服务。", "explanation": "通俗解读：需求分析就像看病问诊。SPIN像医生的四步问诊：'你哪里不舒服'（现状）、'什么时候开始的'（问题）、'影响了什么'（影响）、'你最想解决什么'（需求）。TDD像评估手术方案：'技术上能不能做'（技术）、'这个病我们熟不熟'（领域）、'病人能不能承受'（交付）。AI适用性就像判断'这个病适不适合用微创手术'——有些场景用AI效果好，有些传统方案更合适。", "caseStudy": {"title": "需求分析实践", "content": "某零售客户说'我们想要一个AI客服'。FDE通过SPIN分析发现：现状是5个客服每天处理800+咨询；问题是高峰期响应慢、离职率高；影响是客户流失率上升15%；根本需求是降低响应时间。FDE建议先用RAG解决80%常见问题，复杂问题转人工，而非完全替代客服。"}, "keyCards": [{"term": "SPIN", "definition": "Situation-Problem-Implication-Need，需求分析框架"}, {"term": "TDD", "definition": "Technical-Domain-Delivery，可行性评估框架"}, {"term": "AI适用性", "definition": "判断场景是否适合用AI解决的标准"}, {"term": "痛点识别", "definition": "区分表面需求和根本问题"}], "examTips": "高频考点：SPIN框架的四个步骤、AI适用性判断标准、如何区分表面需求和根本问题。常考场景题。", "relatedLinks": []}, {"id": "4.2", "title": "智能体方案适配性", "module": 4, "moduleName": "场景理解与方案设计", "examWeight": "4%", "week": 4, "day": 2, "officialContent": "评估场景是否适合用Agent解决需要考虑：Agent vs传统软件的对比（Agent适合模糊规则、需要推理的场景；传统软件适合确定性逻辑）、场景分类（对话类、决策类、生成类、分析类）、复杂度评估（单轮vs多轮、单领域vs跨领域）、ROI估算（开发成本、运维成本 vs 人力节省、效率提升）。", "explanation": "通俗解读：选择Agent还是传统软件就像选择出租车还是自驾。Agent像出租车——灵活，可以去任何地方，但费用不太可控。传统软件像自驾——路线固定但效率高。如果目的地明确（规则清晰），自驾更好。如果需要灵活应对（规则模糊），出租车更好。ROI就像算'打车费vs买车费+油费+停车费'哪个更划算。", "caseStudy": {"title": "方案适配性评估", "content": "某律所咨询'是否用Agent替代合同审查'。FDE评估：合同审查涉及大量法律判断（适合Agent），但合规要求高（需要人工审核）。建议Agent做初筛+标注风险点，律师做最终审核。ROI：审查时间从4小时降至30分钟，律师可处理更多案件。"}, "keyCards": [{"term": "Agent vs传统软件", "definition": "Agent适合模糊规则，传统软件适合确定性逻辑"}, {"term": "场景分类", "definition": "对话类、决策类、生成类、分析类"}, {"term": "ROI估算", "definition": "开发运维成本 vs 人力效率收益"}, {"term": "复杂度评估", "definition": "单轮vs多轮、单领域vs跨领域"}], "examTips": "高频考点：Agent vs传统软件的选择标准、ROI估算方法、场景分类。", "relatedLinks": []}, {"id": "4.3", "title": "方案设计方法论", "module": 4, "moduleName": "场景理解与方案设计", "examWeight": "4%", "week": 4, "day": 3, "officialContent": "方案设计是将需求转化为技术实现的过程。核心组合模式：知识库+Agent（知识问答）、工作流+Agent（流程自动化）、知识库+工作流+Agent（复杂场景）。能力映射将业务需求对应到ADP功能。技术规格书包括：架构设计、模型选型、知识库设计、工作流设计、接口定义、性能指标。", "explanation": "通俗解读：方案设计就像建筑设计。能力映射像'客户说要3个卧室→图纸上画3个房间'。组合模式像选择不同的建筑结构——简单平房（知识库+Agent）、带车库的别墅（工作流+Agent）、综合体（知识库+工作流+Agent）。技术规格书就像施工图纸——详细标注每个部分的规格和要求。", "caseStudy": {"title": "方案设计实践", "content": "某医院智能问诊方案：知识库（疾病知识库+药品知识库）+工作流（问诊流程：症状采集→初步诊断→科室推荐→挂号引导）+Agent（对话管理、情感安抚）。技术规格书详细定义了每个模块的输入输出、性能指标（响应<3秒）、准确率目标（>90%）。"}, "keyCards": [{"term": "组合模式", "definition": "知识库+Agent、工作流+Agent、知识库+工作流+Agent"}, {"term": "能力映射", "definition": "将业务需求对应到平台功能"}, {"term": "技术规格书", "definition": "详细的技术设计文档"}, {"term": "架构设计", "definition": "系统整体结构和组件关系"}], "examTips": "高频考点：三种组合模式的适用场景、技术规格书的内容要素。常考场景题：给定需求，设计方案。", "relatedLinks": []}, {"id": "4.4", "title": "行业场景：金融", "module": 4, "moduleName": "场景理解与方案设计", "examWeight": "3%", "week": 4, "day": 4, "officialContent": "金融行业AI应用场景：智能客服（7x24问答、产品推荐）、风控（交易监控、欺诈检测）、合规审查（合同审查、反洗钱检查）。数据安全要求高：客户数据不能出域、模型需私有化部署、审计日志完整。监管要求：模型可解释性、决策可追溯、人工兜底机制。", "explanation": "通俗解读：金融行业的AI应用就像在银行里请了个AI助手。智能客服像大堂经理——随时回答客户问题。风控像保安——盯着每笔交易看有没有异常。合规审查像审计师——检查每份合同有没有问题。但银行对安全要求极高——数据不能离开银行（私有化部署）、每个决定都要能解释（可解释性）、出了事有人负责（人工兜底）。", "caseStudy": {"title": "银行智能客服项目", "content": "某股份制银行部署智能客服：接入产品知识库（200+产品文档）、交易知识库（500+常见问题）。采用私有化部署，数据不出银行网络。配置安全过滤（不泄露客户隐私）、引用溯源（每个回答标注来源）。上线后客服效率提升60%，客户满意度提升20%。"}, "keyCards": [{"term": "智能客服", "definition": "7x24自动问答和产品推荐"}, {"term": "风控", "definition": "交易监控和欺诈检测"}, {"term": "数据安全", "definition": "私有化部署、数据不出域、审计日志"}, {"term": "可解释性", "definition": "模型决策过程可追溯和解释"}], "examTips": "高频考点：金融行业的应用场景、数据安全要求、监管合规要求。", "relatedLinks": []}, {"id": "4.5", "title": "行业场景：政务", "module": 4, "moduleName": "场景理解与方案设计", "examWeight": "3%", "week": 4, "day": 5, "officialContent": "政务行业AI应用：政策问答（解读政策文件、办事指南）、服务门户（在线办事、进度查询）、数据隔离（不同部门数据独立）。等保要求：三级等保是基础要求，涉及网络安全、数据安全、应用安全。政务场景特殊性：准确性要求极高（政策不能有错）、覆盖全渠道（网站/APP/窗口/电话）、适老化设计。", "explanation": "通俗解读：政务AI就像一个24小时在线的政府服务大厅。政策问答像咨询窗口——告诉你怎么办、需要什么材料。服务门户像自助终端——在线提交申请、查进度。数据隔离像不同部门的档案柜——公安的数据和税务的数据不能混在一起。等保就像政府大楼的安保等级——越高越安全。", "caseStudy": {"title": "政务智能问答平台", "content": "某市部署政务问答平台：接入300+政策文件、50+办事指南。支持网站、APP、微信小程序、12345热线四个渠道。采用三级等保部署，数据在政务云内闭环。配置引用溯源（每条回答标注政策文号）。上线后日均服务15000人次，窗口排队时间减少40%。"}, "keyCards": [{"term": "政策问答", "definition": "解读政策文件、提供办事指南"}, {"term": "等保", "definition": "信息安全等级保护，政务场景通常要求三级"}, {"term": "数据隔离", "definition": "不同部门数据独立存储和访问"}, {"term": "适老化", "definition": "考虑老年人使用习惯的设计"}], "examTips": "高频考点：政务场景的特殊要求、等保要求、数据隔离的重要性。", "relatedLinks": []}, {"id": "4.6", "title": "行业场景：制造&零售", "module": 4, "moduleName": "场景理解与方案设计", "examWeight": "3%", "week": 4, "day": 6, "officialContent": "制造业AI应用：设备维护（预测性维护、故障诊断）、质检（视觉检测、缺陷分类）、知识管理（设备手册问答、操作规程指导）。零售业AI应用：智能购物（商品推荐、搭配建议）、库存管理（需求预测、自动补货）、客户服务（售后处理、退换货）。制造业注重准确性和可靠性，零售业注重实时性和个性化。", "explanation": "通俗解读：制造业AI像一个经验丰富的老师傅——能听机器声音判断故障（故障诊断）、能看产品表面发现缺陷（质检）、能翻手册告诉你怎么修（知识管理）。零售业AI像一个聪明的导购——知道你喜好推荐商品（智能购物）、知道什么时候该补货（库存管理）、能处理你的退换货（客户服务）。", "caseStudy": {"title": "制造业质检Agent", "content": "某电子厂部署质检Agent：接入产品规格知识库（1000+缺陷图谱）。Agent分析产品图片，判断缺陷类型和等级。工作流：拍照→检测→分类→记录→报警。准确率97%，超过人工质检的93%。每天检测5000+零件，是人工的10倍。"}, "keyCards": [{"term": "预测性维护", "definition": "通过数据分析预测设备故障时间"}, {"term": "视觉检测", "definition": "用AI图像识别进行质量检测"}, {"term": "智能推荐", "definition": "基于用户行为和偏好的商品推荐"}, {"term": "库存优化", "definition": "AI预测需求，自动调整库存水平"}], "examTips": "高频考点：制造业和零售业的典型应用场景、准确性和实时性的不同侧重。", "relatedLinks": []}, {"id": "4.7", "title": "行业场景：医疗&教育", "module": 4, "moduleName": "场景理解与方案设计", "examWeight": "3%", "week": 4, "day": 7, "officialContent": "医疗AI应用：医疗问答（症状分析、科室推荐）、健康管理（用药提醒、饮食建议）、医学教育（病例分析、知识考核）。合规要求：医疗建议需标注'仅供参考'、不能替代医生诊断、患者数据需脱敏。教育AI应用：智能辅导（个性化学习路径）、内容生成（试题生成、教案生成）、知识问答（学科问答、概念解释）。教育场景注重互动性和适应性。", "explanation": "通俗解读：医疗AI像一个全科实习医生——能分析症状、推荐科室、提醒用药，但不能开处方（需要真人医生确认）。教育AI像一个私人家教——能根据你的水平调整教学、出练习题、解释概念，但比真人老师更有耐心、24小时在线。", "caseStudy": {"title": "医疗问答系统", "content": "某三甲医院部署医疗问答系统：接入临床指南知识库（200+指南）、药品知识库（5000+药品说明）。Agent分析患者症状，推荐科室和检查项目。每个回答标注'仅供参考，请以医生诊断为准'。配置隐私保护（患者信息脱敏）。上线后门诊分诊准确率提升至88%。"}, "keyCards": [{"term": "医疗问答", "definition": "症状分析和科室推荐"}, {"term": "合规要求", "definition": "标注仅供参考、不替代诊断、数据脱敏"}, {"term": "智能辅导", "definition": "个性化学习路径和内容推荐"}, {"term": "内容生成", "definition": "自动生成试题、教案等教育内容"}], "examTips": "高频考点：医疗和教育场景的合规要求、AI在两个行业的典型应用。", "relatedLinks": []}, {"id": "5.1", "title": "POC快速验证", "module": 5, "moduleName": "交付实施·评测与运维", "examWeight": "2%", "week": 6, "day": 1, "officialContent": "POC（Proof of Concept）是在正式开发前快速验证方案可行性的过程。范围定义：明确验证什么、不验证什么。成功标准：量化的指标（如准确率>85%、响应时间<3秒）。ADP快速原型：利用平台能力快速搭建Demo。Demo准备：选择典型场景、准备测试数据、录制演示流程。POC周期通常1-2周。", "explanation": "通俗解读：POC就像试菜——在正式办宴席前先做几道菜让客人尝尝。范围定义是'试哪几道菜'。成功标准是'客人说好吃才算过'。ADP快速原型就像用预制菜快速摆盘——不用从零开始。Demo准备就像选最好的食材、摆最漂亮的盘。POC的目的是用最小成本验证'这条路走不走得通'。", "caseStudy": {"title": "POC实践", "content": "某客户希望用AI处理合同审查。POC范围：验证RAG对法律条款的理解能力。成功标准：10份合同中准确识别80%以上的风险条款。使用ADP在3天内搭建原型，接入法律知识库。测试结果：识别准确率87%，超过80%标准。客户决定正式立项。"}, "keyCards": [{"term": "POC", "definition": "Proof of Concept，概念验证"}, {"term": "成功标准", "definition": "量化的验证指标"}, {"term": "快速原型", "definition": "用最低成本搭建可演示的版本"}, {"term": "Demo", "definition": "演示版本，展示核心功能"}], "examTips": "高频考点：POC的范围定义方法、成功标准的设定、POC与正式项目的区别。", "relatedLinks": []}, {"id": "5.2", "title": "效果评测方法论", "module": 5, "moduleName": "交付实施·评测与运维", "examWeight": "2%", "week": 6, "day": 2, "officialContent": "效果评测是衡量AI系统质量的关键环节。评测维度：准确性（回答是否正确）、相关性（检索内容是否相关）、忠实度（回答是否忠于检索内容）。人工评测：专家打分，准确但成本高。自动评测：使用LLM-as-Judge或规则匹配，效率高但可能有偏差。A/B测试：对比新旧版本效果。", "explanation": "通俗解读：效果评测就像考试阅卷。准确性像'答案对不对'。相关性像'参考的资料对不对'。忠实度像'有没有照搬资料乱发挥'。人工评测像老师亲自改卷——准确但慢。自动评测像机器改选择题——快但可能误判。A/B测试像让两个老师分别教一个班，看哪个班成绩好。", "caseStudy": {"title": "评测方法论实践", "content": "某项目评测方案：准确性（100道题人工评测+1000道题LLM自动评测）、相关性（检索top-5的命中率）、忠实度（检查是否有幻觉内容）。A/B测试对比两版Prompt效果。最终发现B版在准确性上高5%，但忠实度低3%，综合选择A版。"}, "keyCards": [{"term": "准确性", "definition": "回答是否正确"}, {"term": "相关性", "definition": "检索内容是否与问题相关"}, {"term": "忠实度", "definition": "回答是否忠于检索到的内容"}, {"term": "A/B测试", "definition": "对比两个版本的效果"}], "examTips": "高频考点：三个评测维度的定义、人工vs自动评测的优缺点、A/B测试方法。", "relatedLinks": []}, {"id": "5.3", "title": "RAG效果评测", "module": 5, "moduleName": "交付实施·评测与运维", "examWeight": "2%", "week": 6, "day": 3, "officialContent": "RAG评测指标：recall@k（前k个结果中包含相关文档的比例）、MRR（Mean Reciprocal Rank，第一个相关结果的排名倒数的均值）、NDCG（Normalized Discounted Cumulative Gain，考虑排名位置的加权指标）。端到端评测：从提问到最终回答的完整效果。幻觉检测：检查回答中是否有知识库中不存在的信息。", "explanation": "通俗解读：RAG评测就像评估图书管理员的检索能力。recall@k像'让你找5本书，你找到了几本对的'。MRR像'第一本对的书排在第几个位置'——越靠前越好。NDCG像'对的书排得越靠前分数越高'。端到端评测像'从你问问题到最终拿到答案，整个过程满不满意'。幻觉检测像'管理员有没有编造不存在的书'。", "caseStudy": {"title": "RAG评测优化", "content": "某项目初始RAG评测：recall@5=72%，MRR=0.58，幻觉率15%。优化措施：调整分块策略（语义分块+overlap）、优化Embedding模型、添加重排序。优化后：recall@5=89%，MRR=0.76，幻觉率5%。"}, "keyCards": [{"term": "recall@k", "definition": "前k个结果中包含相关文档的比例"}, {"term": "MRR", "definition": "第一个相关结果排名倒数的均值"}, {"term": "NDCG", "definition": "考虑排名位置的加权检索指标"}, {"term": "幻觉检测", "definition": "检查回答中是否有不存在的信息"}], "examTips": "高频考点：recall@k/MRR/NDCG的定义与区别、幻觉检测方法。", "relatedLinks": []}, {"id": "5.4", "title": "性能优化", "module": 5, "moduleName": "交付实施·评测与运维", "examWeight": "2%", "week": 6, "day": 4, "officialContent": "性能优化关注系统响应速度和吞吐量。推理加速：模型量化（INT8/FP8减少计算量）、KV Cache（缓存已计算的key-value对）、批处理（合并多个请求一起处理）。流式输出（逐token返回，用户感知延迟降低）。延迟优化：减少检索时间、优化Prompt长度、使用更快的模型。", "explanation": "通俗解读：性能优化就像提升餐厅出餐速度。量化就像把大份菜改成小份——分量少了但味道差不多，做得更快。KV Cache就像记住老顾客的喜好——不用每次重新问。批处理就像同时炒几锅菜——一锅出比一锅出效率高。流式输出像上菜时一道一道上——不用等所有菜做好才上，客人感觉更快。", "caseStudy": {"title": "性能优化实践", "content": "某项目初始延迟：首token 3秒，完整回答8秒。优化：启用流式输出（首token降至0.8秒）、KV Cache（重复问题加速50%）、Prompt压缩（从2000token减至800token）。最终：首token 0.5秒，完整回答3秒。"}, "keyCards": [{"term": "模型量化", "definition": "降低参数精度（INT8/FP8）减少计算量"}, {"term": "KV Cache", "definition": "缓存已计算的key-value对加速推理"}, {"term": "流式输出", "definition": "逐token返回降低感知延迟"}, {"term": "批处理", "definition": "合并多个请求提升吞吐量"}], "examTips": "高频考点：各优化方法的原理与效果、流式输出的优势。", "relatedLinks": []}, {"id": "5.5", "title": "成本优化", "module": 5, "moduleName": "交付实施·评测与运维", "examWeight": "2%", "week": 6, "day": 5, "officialContent": "成本优化关注降低AI系统运营成本。Token成本计算：输入token+输出token×单价。Prompt压缩：去除冗余信息，保留核心指令。缓存策略：相同问题直接返回缓存结果。PU（Processing Unit）管理：合理分配计算资源。模型降级：非关键场景使用小模型。", "explanation": "通俗解读：成本优化就像控制餐厅成本。Token成本像食材费——用的越多花的越多。Prompt压缩像精简菜单——去掉没人点的菜减少备料。缓存策略像预制菜——同样的菜提前做好不用现炒。模型降级像日常用普通厨师、VIP才用主厨。", "caseStudy": {"title": "成本优化实践", "content": "某项目月成本从5万元优化至1.8万元。措施：Prompt压缩减少40%token消耗、语义缓存命中30%重复问题、非高峰时段切换小模型节省35%推理成本。效果：成本降低64%，用户体验无明显下降。"}, "keyCards": [{"term": "Token成本", "definition": "输入token+输出token×单价"}, {"term": "Prompt压缩", "definition": "去除冗余信息减少token消耗"}, {"term": "语义缓存", "definition": "相似问题直接返回缓存结果"}, {"term": "PU管理", "definition": "Processing Unit，计算资源管理"}], "examTips": "高频考点：Token成本计算方法、缓存策略的实现、成本优化手段。", "relatedLinks": []}, {"id": "5.6", "title": "监控与可观测性", "module": 5, "moduleName": "交付实施·评测与运维", "examWeight": "1%", "week": 6, "day": 6, "officialContent": "监控与可观测性确保系统稳定运行。日志策略：请求日志、错误日志、审计日志分级存储。Agent行为追踪：记录Agent每一步决策和工具调用。性能仪表盘：QPS、延迟、错误率、Token消耗等指标可视化。告警配置：阈值告警、趋势告警、异常检测。", "explanation": "通俗解读：监控就像餐厅的监控系统。日志像录像记录——出了事可以回看。Agent行为追踪像记录厨师每道菜做了什么——可以复盘。仪表盘像经理看的报表——一眼看到今天卖了多少、投诉多少。告警像烟雾报警器——着火了自动通知。", "caseStudy": {"title": "监控体系搭建", "content": "某项目搭建完整监控：请求日志（ELK存储30天）、Agent追踪（每步决策可视化）、仪表盘（Grafana展示核心指标）、告警（错误率>5%自动通知）。上线后故障发现时间从30分钟降至2分钟。"}, "keyCards": [{"term": "日志策略", "definition": "分级存储请求、错误、审计日志"}, {"term": "行为追踪", "definition": "记录Agent每步决策和工具调用"}, {"term": "仪表盘", "definition": "核心指标的可视化展示"}, {"term": "告警配置", "definition": "阈值/趋势/异常告警"}], "examTips": "高频考点：日志分级策略、Agent行为追踪的内容、告警配置方法。", "relatedLinks": []}, {"id": "5.7", "title": "问题排查与故障恢复", "module": 5, "moduleName": "交付实施·评测与运维", "examWeight": "1%", "week": 6, "day": 7, "officialContent": "常见问题排查：日志排查（按请求ID追踪完整链路）、服务启动失败（检查配置、依赖、资源）、推理报错（模型加载失败、OOM、超时）、检索异常（召回率低、结果不相关）。故障恢复：降级策略（切换到备用模型/简化流程）、限流保护（防止雪崩）、数据备份与恢复。", "explanation": "通俗解读：问题排查就像修车。日志排查像读行车记录仪——看故障发生前后发生了什么。服务启动失败像车打不着火——检查电瓶（配置）、油路（依赖）、启动机（资源）。推理报错像发动机故障——可能是零件坏了（模型加载）、温度太高（OOM）、转得太慢（超时）。降级像备胎——主胎爆了先换备胎跑。", "caseStudy": {"title": "故障排查实践", "content": "某项目出现回答质量突然下降。排查：日志显示检索环节异常→检查知识库发现新上传文档格式错误→部分文档未被正确解析→检索到错误内容。修复：重新解析文档、添加格式校验、配置解析失败告警。整个过程2小时完成。"}, "keyCards": [{"term": "日志排查", "definition": "按请求ID追踪完整调用链路"}, {"term": "降级策略", "definition": "切换到备用模型或简化流程"}, {"term": "限流保护", "definition": "控制请求速率防止系统过载"}, {"term": "故障恢复", "definition": "从故障中恢复服务的过程"}], "examTips": "高频考点：常见问题类型与排查方法、降级策略的实现。", "relatedLinks": []}, {"id": "6.1", "title": "数据权限与隐私保护", "module": 6, "moduleName": "安全合规与责任AI", "examWeight": "2%", "week": 7, "day": 1, "officialContent": "数据权限管理包括：数据分类分级（公开/内部/机密/绝密）、访问控制（RBAC角色权限、ABAC属性权限）、脱敏处理（掩码、替换、加密）、PII保护（个人身份信息识别和保护）。企业场景需要多租户数据隔离，确保不同部门/客户数据不交叉访问。", "explanation": "通俗解读：数据权限就像公司的门禁系统。分类分级像给文件贴标签——公开的谁都能看，绝密的只有老板能看。访问控制像门禁卡——不同级别的人能进不同的房间。脱敏像给身份证号打马赛克——能看到部分信息但看不到完整的。PII保护就像保护客户的手机号、地址等隐私信息。", "caseStudy": {"title": "数据权限实施", "content": "某集团部署AI系统，需要隔离5个子公司数据。方案：多租户架构（数据物理隔离）、RBAC权限（角色对应数据范围）、PII自动检测（识别手机号/身份证号自动脱敏）。上线后通过安全审计，零数据泄露事件。"}, "keyCards": [{"term": "数据分级", "definition": "公开/内部/机密/绝密四个等级"}, {"term": "RBAC", "definition": "基于角色的访问控制"}, {"term": "脱敏", "definition": "对敏感信息进行掩码或替换处理"}, {"term": "PII", "definition": "个人身份信息，如手机号、身份证号"}], "examTips": "高频考点：数据分级标准、RBAC与ABAC的区别、PII保护方法。", "relatedLinks": []}, {"id": "6.2", "title": "内容安全", "module": 6, "moduleName": "安全合规与责任AI", "examWeight": "1%", "week": 7, "day": 2, "officialContent": "内容安全确保AI系统不产生和传播有害内容。安全过滤机制：输入过滤（检测恶意Prompt注入）、输出过滤（检测有害内容生成）。有害内容识别：暴力、色情、政治敏感、歧视性内容。输出审核策略：实时审核、异步审核、人工复审。", "explanation": "通俗解读：内容安全就像餐厅的食品安全检查。输入过滤像检查食材——坏食材不让进。输出过滤像检查成品——有问题不让上桌。有害内容识别像检测农药残留——找出有害物质。审核策略像检查流程——有的菜可以快速通过，有的需要仔细检查。", "caseStudy": {"title": "内容安全体系", "content": "某教育平台部署内容安全体系：输入过滤（检测Prompt注入攻击，拦截率99%）、输出过滤（检测暴力/色情内容，拦截率99.5%）、人工复审（边缘案例由人工判断）。上线后零安全事件。"}, "keyCards": [{"term": "输入过滤", "definition": "检测恶意Prompt注入和有害输入"}, {"term": "输出过滤", "definition": "检测并拦截有害内容生成"}, {"term": "Prompt注入", "definition": "通过精心构造的输入绕过安全限制"}, {"term": "人工复审", "definition": "对边缘案例由人工判断"}], "examTips": "高频考点：输入/输出过滤的区别、Prompt注入的防范。", "relatedLinks": []}, {"id": "6.3", "title": "模型幻觉与越权访问", "module": 6, "moduleName": "安全合规与责任AI", "examWeight": "2%", "week": 7, "day": 3, "officialContent": "模型幻觉是LLM生成看似合理但实际错误的信息。原因：训练数据偏差、知识截止、过度自信。缓解策略：RAG引入外部知识、设置置信度阈值、引用溯源、人工审核。越权访问是Agent执行超出权限的操作。权限边界：明确Agent可以做什么、不可以做什么。最小权限原则：只授予完成任务所需的最小权限。", "explanation": "通俗解读：幻觉就像一个学霸'不懂装懂'——看起来说得头头是道，其实是编的。缓解方法就像让他'开卷考试'（RAG查资料）、'不确定就说不知道'（置信度阈值）、'标明出处'（引用溯源）。越权就像实习生擅自签了合同——做了他权限之外的事。最小权限就像只给他打开需要用的抽屉，其他抽屉都锁上。", "caseStudy": {"title": "幻觉缓解实践", "content": "某法律AI初始幻觉率18%。缓解措施：RAG接入法规知识库（幻觉率降至7%）、置信度<0.7时回复'建议咨询专业律师'（降至4%）、强制引用法条编号（降至2%）。最终幻觉率2%，满足上线要求。"}, "keyCards": [{"term": "模型幻觉", "definition": "LLM生成看似合理但错误的信息"}, {"term": "RAG缓解", "definition": "通过检索外部知识减少幻觉"}, {"term": "最小权限", "definition": "只授予完成任务所需的最小权限"}, {"term": "越权访问", "definition": "Agent执行超出权限的操作"}], "examTips": "高频考点：幻觉的原因与缓解策略、最小权限原则。", "relatedLinks": []}, {"id": "6.4", "title": "合规边界与责任AI", "module": 6, "moduleName": "安全合规与责任AI", "examWeight": "1%", "week": 7, "day": 4, "officialContent": "合规边界涉及生成式AI的法规要求：《生成式人工智能服务管理暂行办法》要求标注AI生成内容、保护用户隐私、不得生成违法内容。审计追溯：记录AI系统的每次交互和决策，支持事后追溯。负责任AI原则：公平性（不歧视）、透明性（可解释）、隐私性（保护数据）、安全性（防止滥用）。", "explanation": "通俗解读：合规就像开车要遵守交通规则——AI也要遵守法律法规。审计追溯就像行车记录仪——出了事故可以回看。负责任AI就像安全驾驶——不歧视其他司机（公平性）、打转向灯让别人知道你要干嘛（透明性）、不泄露乘客信息（隐私性）、不酒驾（安全性）。", "caseStudy": {"title": "合规体系建设", "content": "某企业AI系统合规建设：内容标注（AI生成内容加水印）、隐私保护（用户数据加密存储）、审计日志（记录所有交互，保留180天）、公平性检测（定期测试模型是否对特定群体有偏见）。通过监管检查，零整改项。"}, "keyCards": [{"term": "生成式AI合规", "definition": "遵守生成式AI相关法规要求"}, {"term": "审计追溯", "definition": "记录AI交互和决策支持事后追溯"}, {"term": "负责任AI", "definition": "公平、透明、隐私、安全的AI开发原则"}, {"term": "内容标注", "definition": "标注AI生成的内容"}], "examTips": "高频考点：生成式AI合规要求、负责任AI的四个原则。", "relatedLinks": []}, {"id": "7.1", "title": "容器化基础", "module": 7, "moduleName": "云原生与部署基础", "examWeight": "1%", "week": 7, "day": 5, "officialContent": "容器化是将应用及其依赖打包为标准化单元的技术。Docker是最流行的容器平台。Dockerfile定义镜像构建步骤。Docker Compose编排多容器应用。容器与虚拟机的区别：容器共享宿主机内核，更轻量；虚拟机有独立操作系统，更隔离。网络模式：bridge、host、none。存储：Volume（持久化）、Bind Mount（目录映射）。", "explanation": "通俗解读：容器化就像把餐厅的每道菜做成预制菜——连锅带菜一起打包，到哪儿加热就能吃。Dockerfile就像菜谱——告诉你放什么料、怎么烹饪。Docker Compose就像套餐搭配——把几道预制菜组合成一个套餐。容器像共享厨房的摊位——共用厨房（内核）但各自独立。虚拟机像独立的餐厅——有自己的厨房（操作系统）。", "caseStudy": {"title": "容器化部署", "content": "某项目将AI应用容器化：模型推理服务（GPU容器）、知识库服务（存储容器）、API网关（网络容器）。使用Docker Compose一键部署。环境一致性从'在我电脑上能跑'变为'在任何服务器上都能跑'。部署时间从2小时降至10分钟。"}, "keyCards": [{"term": "Docker", "definition": "最流行的容器化平台"}, {"term": "Dockerfile", "definition": "定义镜像构建步骤的文件"}, {"term": "Docker Compose", "definition": "编排多容器应用的工具"}, {"term": "Volume", "definition": "容器数据持久化存储"}], "examTips": "高频考点：容器与虚拟机的区别、Dockerfile的基本指令、Volume的作用。", "relatedLinks": []}, {"id": "7.2", "title": "Kubernetes基础", "module": 7, "moduleName": "云原生与部署基础", "examWeight": "1%", "week": 7, "day": 6, "officialContent": "Kubernetes（K8s）是容器编排平台。核心架构：Master节点（API Server、Scheduler、Controller）和Worker节点（Kubelet、Kube-proxy）。Pod是最小部署单元，包含一个或多个容器。Deployment管理Pod的副本数和滚动更新。Service提供稳定的网络入口。ConfigMap和Secret管理配置和敏感信息。", "explanation": "通俗解读：K8s就像一个大型餐厅的管理体系。Master像总经理——决定开几个窗口（Scheduler）、检查运营状况（Controller）。Worker像各个窗口——实际做菜。Pod像一个小摊位——可能有一个厨师（单容器）或一个厨师加一个帮厨（多容器）。Deployment像排班表——规定每个窗口开几个摊位。Service像叫号系统——顾客不用管哪个摊位做的。", "caseStudy": {"title": "K8s部署AI应用", "content": "某项目使用K8s部署AI服务：Deployment管理3个推理Pod副本、HPA自动扩缩容（CPU>70%时增加副本）、Service暴露API入口、ConfigMap管理模型配置、Secret存储API密钥。实现高可用和弹性伸缩。"}, "keyCards": [{"term": "Kubernetes", "definition": "容器编排平台"}, {"term": "Pod", "definition": "最小部署单元，包含一个或多个容器"}, {"term": "Deployment", "definition": "管理Pod副本数和滚动更新"}, {"term": "Service", "definition": "提供稳定的网络入口"}], "examTips": "高频考点：K8s核心组件、Pod/Deployment/Service的作用。", "relatedLinks": []}, {"id": "7.3", "title": "CI/CD与DevOps", "module": 7, "moduleName": "云原生与部署基础", "examWeight": "1%", "week": 7, "day": 7, "officialContent": "CI/CD是持续集成和持续部署的缩写。流水线（Pipeline）自动化代码从提交到部署的全过程。GitOps以Git仓库为唯一真实来源管理基础设施。蓝绿部署：同时维护两套环境，切换流量实现零停机更新。金丝雀发布：先向少量用户发布新版本，验证无误后逐步扩大。", "explanation": "通俗解读：CI/CD就像自动化工厂。流水线像传送带——代码提交后自动测试、打包、部署。GitOps像把工厂设计图存在一个保险箱里——所有改动都要通过设计图审批。蓝绿部署像有两套餐厅——新装修好后再把客人引过去，旧的当备用。金丝雀像先让10个客人试新菜——没问题再推广。", "caseStudy": {"title": "CI/CD实践", "content": "某项目搭建CI/CD流水线：代码提交→自动测试→构建镜像→部署到测试环境→人工审批→金丝雀发布（5%流量）→全量发布。发布频率从每月1次提升到每天多次，回滚时间从30分钟降至2分钟。"}, "keyCards": [{"term": "CI/CD", "definition": "持续集成/持续部署"}, {"term": "Pipeline", "definition": "自动化构建测试部署的流水线"}, {"term": "蓝绿部署", "definition": "两套环境切换实现零停机更新"}, {"term": "金丝雀发布", "definition": "先向少量用户发布验证"}], "examTips": "高频考点：蓝绿部署与金丝雀发布的区别、GitOps的理念。", "relatedLinks": []}, {"id": "7.4", "title": "模型推理部署", "module": 7, "moduleName": "云原生与部署基础", "examWeight": "1%", "week": 8, "day": 1, "officialContent": "模型推理部署框架：vLLM（高吞吐LLM推理引擎，支持PagedAttention）、TGI（HuggingFace的推理服务）、SGLang（高效LLM serving）。量化技术：INT8（8位整数，精度损失小）、FP8（8位浮点）、AWQ（Activation-aware Weight Quantization）。GPU选型考虑：显存大小（决定模型大小）、计算能力（决定推理速度）、性价比。", "explanation": "通俗解读：推理框架就像不同的厨房设备——vLLM像高效烤箱（一次烤很多）、TGI像万能灶（兼容性好）、SGLang像智能灶（自动调节火候）。量化就像把高清照片压缩——文件小了但看起来差不多。GPU选型像选厨房——大厨房能做大菜（大模型）但租金贵。", "caseStudy": {"title": "推理部署优化", "content": "某项目部署7B模型：初始使用FP16，需要16GB显存，QPS=10。优化：INT8量化（显存降至8GB）、vLLM引擎（PagedAttention提升吞吐）、A100 GPU。最终QPS提升至45，成本降低40%。"}, "keyCards": [{"term": "vLLM", "definition": "高吞吐LLM推理引擎，支持PagedAttention"}, {"term": "量化", "definition": "降低参数精度减少显存和计算需求"}, {"term": "GPU选型", "definition": "考虑显存、计算能力、性价比"}, {"term": "PagedAttention", "definition": "vLLM的内存优化技术"}], "examTips": "高频考点：推理框架的特点、量化技术、GPU选型因素。", "relatedLinks": []}, {"id": "7.5", "title": "网络与安全", "module": 7, "moduleName": "云原生与部署基础", "examWeight": "1%", "week": 8, "day": 2, "officialContent": "网络规划：VPC（虚拟私有云）隔离网络环境、安全组控制入站出站规则、NAT网关让内网资源访问外网。安全配置：SSL证书加密传输、反向代理（Nginx）转发请求和负载均衡、WAF防护Web攻击。企业场景通常需要混合云网络架构，连接本地数据中心和云端资源。", "explanation": "通俗解读：网络规划就像规划小区。VPC像围墙——把小区和外面隔开。安全组像门卫——决定谁能进谁不能进。NAT网关像小区快递柜——住户不出门也能收快递（访问外网）。SSL证书像快递的密封包装——路上没人能偷看。反向代理像前台——帮你转接到正确的部门。", "caseStudy": {"title": "网络安全部署", "content": "某金融项目网络方案：VPC隔离（生产/测试/办公三个子网）、安全组（仅开放443端口）、NAT网关（模型更新时下载数据）、SSL证书（全站HTTPS）、反向代理（请求转发+限流+日志）。通过等保三级认证。"}, "keyCards": [{"term": "VPC", "definition": "虚拟私有云，隔离网络环境"}, {"term": "安全组", "definition": "控制入站出站规则"}, {"term": "NAT网关", "definition": "让内网资源访问外网"}, {"term": "反向代理", "definition": "转发请求、负载均衡、安全防护"}], "examTips": "高频考点：VPC/安全组/NAT网关的作用、SSL和反向代理的功能。", "relatedLinks": []}];
+const QB = [{"id": "q001", "module": 1, "topic": "1.1", "difficulty": 1, "type": "single", "question": "FDE（Forward Deployed Engineer）的概念最早源自哪家公司？", "options": ["A. Google", "B. Palantir", "C. Microsoft", "D. Amazon"], "correctAnswer": 1, "explanation": "FDE的概念最早源自Palantir，指驻扎在客户现场、兼具工程能力与业务理解力的技术角色。"}, {"id": "q002", "module": 1, "topic": "1.1", "difficulty": 1, "type": "single", "question": "AI 3.0时代的核心特征是什么？", "options": ["A. 基于规则的专家系统", "B. 基于深度学习", "C. 大模型+Agent", "D. 机器学习"], "correctAnswer": 2, "explanation": "AI发展经历了1.0（规则专家系统）、2.0（深度学习）、3.0（大模型+Agent）三个阶段。"}, {"id": "q003", "module": 1, "topic": "1.1", "difficulty": 2, "type": "single", "question": "FDE与传统售前工程师的核心区别是什么？", "options": ["A. FDE不需要技术能力", "B. FDE驻扎客户现场并端到端交付", "C. FDE只做销售", "D. FDE不需要了解业务"], "correctAnswer": 1, "explanation": "FDE的核心特点是驻扎在客户现场，兼具工程能力与业务理解力，能够端到端交付解决方案。"}, {"id": "q004", "module": 1, "topic": "1.2", "difficulty": 1, "type": "single", "question": "Transformer架构的核心机制是什么？", "options": ["A. 卷积操作", "B. 循环连接", "C. 自注意力机制", "D. 决策树"], "correctAnswer": 2, "explanation": "Transformer的核心是自注意力机制（Self-Attention），通过Q/K/V计算token之间的关联度。"}, {"id": "q005", "module": 1, "topic": "1.2", "difficulty": 2, "type": "single", "question": "BERT和GPT分别使用了Transformer的哪个部分？", "options": ["A. BERT用解码器，GPT用编码器", "B. BERT用编码器，GPT用解码器", "C. 都用编码器", "D. 都用解码器"], "correctAnswer": 1, "explanation": "BERT使用Transformer的编码器部分做双向理解，GPT使用解码器部分做自回归生成。"}, {"id": "q006", "module": 1, "topic": "1.2", "difficulty": 2, "type": "single", "question": "Transformer中位置编码的作用是什么？", "options": ["A. 加密数据", "B. 为token注入序列顺序信息", "C. 压缩模型", "D. 训练加速"], "correctAnswer": 1, "explanation": "位置编码（Positional Encoding）用于补充序列顺序信息，因为自注意力机制本身不包含位置信息。"}, {"id": "q007", "module": 1, "topic": "1.3", "difficulty": 1, "type": "single", "question": "Temperature参数设为0时，LLM的输出特点是？", "options": ["A. 最随机最有创意", "B. 确定性最高，总是选择概率最大的token", "C. 输出为空", "D. 报错"], "correctAnswer": 1, "explanation": "Temperature=0时，模型总是选择概率最大的token，输出确定性最高。值越高越随机。"}, {"id": "q008", "module": 1, "topic": "1.3", "difficulty": 2, "type": "single", "question": "Tokenization的作用是什么？", "options": ["A. 加密文本", "B. 将文本切分为模型可处理的最小单元", "C. 翻译文本", "D. 压缩文本"], "correctAnswer": 1, "explanation": "Tokenization是分词过程，将文本切分为模型可处理的最小单元（token）。"}, {"id": "q009", "module": 1, "topic": "1.3", "difficulty": 2, "type": "single", "question": "Top-p采样与Temperature的区别是什么？", "options": ["A. 没有区别", "B. Top-p从累积概率不超过p的token中采样，Temperature调整概率分布的锐度", "C. Top-p只用于GPT", "D. Temperature只用于BERT"], "correctAnswer": 1, "explanation": "Top-p（核采样）从概率累积不超过p的token集合中采样，Temperature调整整个概率分布的锐度。"}, {"id": "q010", "module": 1, "topic": "1.4", "difficulty": 1, "type": "single", "question": "Few-shot Prompting的特点是什么？", "options": ["A. 不提供任何示例", "B. 提供几个示例引导模型输出", "C. 要求模型逐步推理", "D. 设定角色身份"], "correctAnswer": 1, "explanation": "Few-shot提示通过提供2-5个示例来引导模型的输出格式和逻辑。"}, {"id": "q011", "module": 1, "topic": "1.4", "difficulty": 2, "type": "single", "question": "Chain-of-Thought（CoT）提示的核心思想是什么？", "options": ["A. 提供大量示例", "B. 要求模型展示推理过程", "C. 设定角色身份", "D. 限制输出长度"], "correctAnswer": 1, "explanation": "CoT要求模型逐步展示推理过程，通过'先想清楚再回答'提升复杂问题的准确率。"}, {"id": "q012", "module": 1, "topic": "1.5", "difficulty": 1, "type": "single", "question": "AI Agent的核心架构循环是什么？", "options": ["A. 输入-输出", "B. 感知-推理-行动", "C. 训练-推理", "D. 编码-解码"], "correctAnswer": 1, "explanation": "AI Agent遵循'感知-推理-行动'循环，能够自主感知环境、推理决策、采取行动。"}, {"id": "q013", "module": 1, "topic": "1.5", "difficulty": 2, "type": "single", "question": "ReAct模式中Re和Act分别代表什么？", "options": ["A. React框架和Action", "B. Reasoning和Acting", "C. Response和Action", "D. Request和Answer"], "correctAnswer": 1, "explanation": "ReAct = Reasoning + Acting，先推理再行动，让Agent在每一步都先思考再执行。"}, {"id": "q014", "module": 1, "topic": "1.5", "difficulty": 2, "type": "single", "question": "Agent的长期记忆通常存储在什么中？", "options": ["A. CPU缓存", "B. 向量数据库", "C. 硬盘文件系统", "D. 寄存器"], "correctAnswer": 1, "explanation": "Agent的长期记忆通常存储在向量数据库中，通过语义相似度检索历史交互信息。"}, {"id": "q015", "module": 1, "topic": "1.6", "difficulty": 1, "type": "single", "question": "智能体开发流程的第一步是什么？", "options": ["A. 编码", "B. 需求分析", "C. 测试", "D. 部署"], "correctAnswer": 1, "explanation": "智能体开发遵循需求分析→设计→开发→测试→部署→迭代的完整生命周期。"}, {"id": "q016", "module": 1, "topic": "1.6", "difficulty": 2, "type": "single", "question": "POC的全称和含义是什么？", "options": ["A. Point of Contact，联系人", "B. Proof of Concept，概念验证", "C. Power of Computer，算力", "D. Plan of Course，课程计划"], "correctAnswer": 1, "explanation": "POC = Proof of Concept，概念验证，用于在正式开发前快速验证方案可行性。"}, {"id": "q017", "module": 1, "topic": "1.1", "difficulty": 3, "type": "single", "question": "以下哪项最能体现FDE在AI 3.0时代的独特价值？", "options": ["A. 编写底层算法", "B. 将企业业务需求翻译为AI可执行的方案并端到端交付", "C. 管理GPU集群", "D. 设计芯片"], "correctAnswer": 1, "explanation": "FDE的核心价值是桥接业务需求和技术实现，将企业需求翻译为AI方案并端到端交付。"}, {"id": "q018", "module": 1, "topic": "1.4", "difficulty": 3, "type": "single", "question": "在设计一个法律问答Agent的Prompt时，以下哪个要素最不应该缺少？", "options": ["A. 有趣的开场白", "B. 角色定义、知识库引用规则和拒绝越权的约束", "C. 大量的emoji", "D. 多个不同语言版本"], "correctAnswer": 1, "explanation": "法律场景需要严格的角色定义、引用规则和越权约束，确保回答准确且合规。"}, {"id": "q019", "module": 1, "topic": "1.3", "difficulty": 3, "type": "single", "question": "预训练+微调范式中，预训练和微调分别解决什么问题？", "options": ["A. 预训练学通用语言能力，微调学特定任务能力", "B. 预训练学特定任务，微调学通用能力", "C. 两者没有区别", "D. 预训练只学语法，微调只学语义"], "correctAnswer": 0, "explanation": "预训练在大规模语料上学习通用语言能力，微调在特定任务数据上精调专业能力。"}, {"id": "q020", "module": 1, "topic": "1.5", "difficulty": 3, "type": "multiple", "question": "AI Agent相比普通LLM应用，具备哪些额外能力？（多选）", "options": ["A. 工具调用能力", "B. 自主决策能力", "C. 环境感知能力", "D. 只能做文本生成"], "correctAnswer": [0, 1, 2], "explanation": "Agent相比普通LLM，额外具备工具调用（A）、自主决策（B）、环境感知（C）能力。D是普通LLM的特点。"}, {"id": "q021", "module": 2, "topic": "2.1", "difficulty": 1, "type": "single", "question": "腾讯云ADP的四层架构从底到顶的正确顺序是？", "options": ["A. 应用层→能力层→模型服务层→基础设施层", "B. 基础设施层→模型服务层→能力层→应用层", "C. 模型服务层→基础设施层→应用层→能力层", "D. 能力层→应用层→基础设施层→模型服务层"], "correctAnswer": 1, "explanation": "ADP四层架构从底到顶：基础设施层→模型服务层→能力层→应用层。"}, {"id": "q022", "module": 2, "topic": "2.1", "difficulty": 2, "type": "single", "question": "ADP与OpenClaw的关系是什么？", "options": ["A. 完全独立的产品", "B. OpenClaw提供底层能力，ADP封装了企业级特性", "C. ADP是OpenClaw的替代品", "D. 两者是同一产品的不同名称"], "correctAnswer": 1, "explanation": "OpenClaw提供底层开源能力，ADP在其上封装了企业级特性如权限、审计、监控。"}, {"id": "q023", "module": 2, "topic": "2.2", "difficulty": 1, "type": "single", "question": "ADP支持的三种应用类型不包括以下哪种？", "options": ["A. 简单Agent", "B. 工作流Agent", "C. Multi-Agent", "D. 数据库Agent"], "correctAnswer": 3, "explanation": "ADP支持简单Agent、工作流Agent、Multi-Agent三种类型，没有数据库Agent。"}, {"id": "q024", "module": 2, "topic": "2.2", "difficulty": 2, "type": "single", "question": "对于需要跨部门协作的复杂售后场景，最适合的ADP应用类型是？", "options": ["A. 简单Agent", "B. 工作流Agent", "C. Multi-Agent", "D. 以上都不适合"], "correctAnswer": 2, "explanation": "跨部门协作需要多个专业Agent（客服+物流+财务）协同工作，最适合Multi-Agent架构。"}, {"id": "q025", "module": 2, "topic": "2.3", "difficulty": 2, "type": "single", "question": "智能路由策略中，'按场景路由'的含义是？", "options": ["A. 随机选择模型", "B. 简单问题用小模型，复杂问题用大模型", "C. 只用一个模型", "D. 按用户喜好选择"], "correctAnswer": 1, "explanation": "按场景路由是根据问题复杂度自动选择模型：简单问题用成本低的模型，复杂问题用能力强的模型。"}, {"id": "q026", "module": 2, "topic": "2.4", "difficulty": 1, "type": "single", "question": "以下哪种不是知识库支持的分块策略？", "options": ["A. 固定长度分块", "B. 语义分块", "C. 递归分块", "D. 随机分块"], "correctAnswer": 3, "explanation": "知识库支持固定长度分块、语义分块、递归分块三种策略，没有随机分块。"}, {"id": "q027", "module": 2, "topic": "2.4", "difficulty": 2, "type": "single", "question": "Chunk Overlap的主要作用是什么？", "options": ["A. 减少存储空间", "B. 加快处理速度", "C. 防止关键信息在分块边界丢失", "D. 增加分块数量"], "correctAnswer": 2, "explanation": "Chunk Overlap让相邻块有部分内容重叠，确保关键信息不会在边界处被切断。"}, {"id": "q028", "module": 2, "topic": "2.4", "difficulty": 3, "type": "single", "question": "对于法律条款类文档，最适合的分块策略是？", "options": ["A. 固定500token分块", "B. 语义分块（按条款自然边界）", "C. 随机分块", "D. 不分块，整个文档作为一个块"], "correctAnswer": 1, "explanation": "法律条款有明确的自然边界（条款），语义分块能保持条款完整性，避免切断语义。"}, {"id": "q029", "module": 2, "topic": "2.5", "difficulty": 1, "type": "single", "question": "RAG的全称是什么？", "options": ["A. Random Access Generation", "B. Retrieval-Augmented Generation", "C. Rapid Application Generation", "D. Real-time Answer Generator"], "correctAnswer": 1, "explanation": "RAG = Retrieval-Augmented Generation，检索增强生成。"}, {"id": "q030", "module": 2, "topic": "2.5", "difficulty": 2, "type": "single", "question": "召回率（Recall）衡量的是什么？", "options": ["A. 返回结果中正确结果的比例", "B. 所有相关文档中被检索到的比例", "C. 系统的响应速度", "D. 模型的准确率"], "correctAnswer": 1, "explanation": "召回率衡量所有相关文档中被检索到的比例，即'该找到的找到了多少'。"}, {"id": "q031", "module": 2, "topic": "2.5", "difficulty": 2, "type": "single", "question": "混合检索结合了哪两种检索方式？", "options": ["A. 向量检索和关键词检索", "B. 全文检索和精确检索", "C. 人工检索和自动检索", "D. 本地检索和云端检索"], "correctAnswer": 0, "explanation": "混合检索结合向量检索（语义相似）和关键词检索（精确匹配），取长补短。"}, {"id": "q032", "module": 2, "topic": "2.5", "difficulty": 3, "type": "single", "question": "对于药品编号、法规编号等精确查询场景，应该优先使用什么检索方式？", "options": ["A. 纯向量检索", "B. 关键词检索", "C. 随机检索", "D. 不检索"], "correctAnswer": 1, "explanation": "编号类查询有明确的关键词，关键词检索（如BM25）比向量检索更精确。"}, {"id": "q033", "module": 2, "topic": "2.6", "difficulty": 1, "type": "single", "question": "引用溯源功能的核心价值是什么？", "options": ["A. 加快检索速度", "B. 增强回答可信度，支持验证", "C. 减少存储空间", "D. 提高模型性能"], "correctAnswer": 1, "explanation": "引用溯源标注信息来源，用户可以查看原文验证，增强可信度，是合规场景的刚需。"}, {"id": "q034", "module": 2, "topic": "2.6", "difficulty": 2, "type": "single", "question": "知识库质量评估的核心指标不包括？", "options": ["A. 回答准确率", "B. 引用相关性", "C. 幻觉率", "D. 服务器颜色"], "correctAnswer": 3, "explanation": "知识库质量评估指标包括回答准确率、引用相关性、幻觉率等，服务器颜色与质量无关。"}, {"id": "q035", "module": 2, "topic": "2.1", "difficulty": 2, "type": "multiple", "question": "ADP平台的企业级特性包括哪些？（多选）", "options": ["A. 权限管理", "B. 审计日志", "C. 多租户隔离", "D. 私有化部署"], "correctAnswer": [0, 1, 2, 3], "explanation": "ADP的企业级特性包括权限管理、审计日志、多租户隔离、私有化部署等。"}, {"id": "q036", "module": 2, "topic": "2.3", "difficulty": 3, "type": "single", "question": "某企业需要部署AI系统，日常咨询量大但简单问题占80%。最经济的模型策略是？", "options": ["A. 全部使用最大模型", "B. 全部使用最小模型", "C. 双模型策略：小模型处理常规问题，大模型处理复杂问题", "D. 不使用模型"], "correctAnswer": 2, "explanation": "双模型策略兼顾效果和成本：80%简单问题用小模型（低成本快速），20%复杂问题用大模型。"}, {"id": "q037", "module": 2, "topic": "2.4", "difficulty": 3, "type": "single", "question": "文档解析Pipeline的正确顺序是？", "options": ["A. 分块→上传→向量化→存储", "B. 上传→格式识别→文本提取→清洗→分块→向量化→存储", "C. 向量化→上传→分块→存储", "D. 存储→分块→上传→向量化"], "correctAnswer": 1, "explanation": "正确的Pipeline：上传→格式识别→文本提取→清洗→分块→向量化→存储。"}, {"id": "q038", "module": 2, "topic": "2.5", "difficulty": 3, "type": "single", "question": "Embedding模型在RAG中的作用是什么？", "options": ["A. 生成最终回答", "B. 将文本映射为高维向量用于语义相似度计算", "C. 存储知识库", "D. 用户界面展示"], "correctAnswer": 1, "explanation": "Embedding模型将文本映射到高维向量空间，通过向量相似度实现语义检索。"}, {"id": "q039", "module": 2, "topic": "2.6", "difficulty": 3, "type": "single", "question": "在保险理赔场景中，监管要求AI回答必须可溯源。应该使用什么功能？", "options": ["A. 流式输出", "B. 引用溯源", "C. 模型量化", "D. 批处理"], "correctAnswer": 1, "explanation": "引用溯源功能可以标注每个回答的来源文档和段落，满足合规要求。"}, {"id": "q040", "module": 2, "topic": "2.2", "difficulty": 3, "type": "multiple", "question": "创建ADP应用的流程包括哪些步骤？（多选）", "options": ["A. 选择应用类型", "B. 配置基座模型", "C. 设计系统提示词", "D. 直接上线不需要测试"], "correctAnswer": [0, 1, 2], "explanation": "创建流程包括选择类型、配置模型、设计提示词、接入知识库、配置工具、测试、发布。D错误，必须测试。"}, {"id": "q041", "module": 2, "topic": "2.5", "difficulty": 3, "type": "single", "question": "RRF在混合检索中的作用是什么？", "options": ["A. 一种Embedding模型", "B. Reciprocal Rank Fusion，融合多路检索结果", "C. 一种分块策略", "D. 一种量化方法"], "correctAnswer": 1, "explanation": "RRF（Reciprocal Rank Fusion）是一种融合多路检索结果的算法，综合考虑各路排名。"}, {"id": "q042", "module": 2, "topic": "2.4", "difficulty": 2, "type": "single", "question": "语义分块相比固定分块的主要优势是什么？", "options": ["A. 分块速度更快", "B. 能保持语义完整性", "C. 块大小完全一致", "D. 实现更简单"], "correctAnswer": 1, "explanation": "语义分块按自然语义边界切分，能保持段落/条款的语义完整性。"}, {"id": "q043", "module": 2, "topic": "2.5", "difficulty": 2, "type": "single", "question": "精确率（Precision）衡量的是什么？", "options": ["A. 所有相关文档中被检索到的比例", "B. 返回的结果中正确结果的比例", "C. 系统的响应速度", "D. 模型的参数量"], "correctAnswer": 1, "explanation": "精确率衡量返回的结果中正确结果的比例，即'找到的里面有多少是对的'。"}, {"id": "q044", "module": 2, "topic": "2.6", "difficulty": 2, "type": "single", "question": "过滤条件在知识库检索中的作用是什么？", "options": ["A. 增加检索时间", "B. 按来源、时间、标签等缩小检索范围提升精确度", "C. 删除知识库文档", "D. 修改文档内容"], "correctAnswer": 1, "explanation": "过滤条件在检索前缩小范围，按来源、时间、标签等条件提升检索精确度和速度。"}, {"id": "q045", "module": 2, "topic": "2.3", "difficulty": 2, "type": "single", "question": "模型的能力边界不包括以下哪个因素？", "options": ["A. 参数量", "B. 上下文窗口", "C. 训练数据", "D. 服务器机箱颜色"], "correctAnswer": 3, "explanation": "模型能力边界受参数量、上下文窗口、训练数据等因素影响，机箱颜色无关。"}, {"id": "q046", "module": 3, "topic": "3.1", "difficulty": 1, "type": "single", "question": "系统提示词在Agent中的作用是什么？", "options": ["A. 装饰界面", "B. 定义Agent角色、能力边界和行为规范", "C. 存储用户数据", "D. 管理服务器"], "correctAnswer": 1, "explanation": "系统提示词是Agent行为的核心，定义角色、能力边界、输出格式和异常处理规则。"}, {"id": "q047", "module": 3, "topic": "3.2", "difficulty": 1, "type": "single", "question": "MCP协议的作用是什么？", "options": ["A. 模型训练协议", "B. Model Context Protocol，标准化工具接入协议", "C. 网络通信协议", "D. 数据库协议"], "correctAnswer": 1, "explanation": "MCP（Model Context Protocol）是标准化的工具接入协议，简化新工具接入流程。"}, {"id": "q048", "module": 3, "topic": "3.3", "difficulty": 1, "type": "single", "question": "工作流中条件节点的作用是什么？", "options": ["A. 调用大模型", "B. 根据条件执行不同分支", "C. 存储数据", "D. 发送HTTP请求"], "correctAnswer": 1, "explanation": "条件节点根据条件判断执行不同的分支路径，实现if/else逻辑。"}, {"id": "q049", "module": 3, "topic": "3.3", "difficulty": 2, "type": "single", "question": "以下哪个不是工作流的节点类型？", "options": ["A. LLM节点", "B. 条件节点", "C. 情感节点", "D. HTTP节点"], "correctAnswer": 2, "explanation": "工作流节点类型包括LLM节点、条件节点、代码节点、HTTP节点、知识检索节点等，没有情感节点。"}, {"id": "q050", "module": 3, "topic": "3.4", "difficulty": 2, "type": "single", "question": "并行执行在工作流中的主要优势是什么？", "options": ["A. 减少代码量", "B. 多个节点同时运行提升效率", "C. 降低准确性", "D. 增加复杂性"], "correctAnswer": 1, "explanation": "并行执行让多个独立节点同时运行，显著减少总执行时间。"}, {"id": "q051", "module": 3, "topic": "3.5", "difficulty": 1, "type": "single", "question": "单工作流应用最适合以下哪种场景？", "options": ["A. 需要多角色协作的复杂任务", "B. 流程明确的审批流程", "C. 开放式创意对话", "D. 实时翻译"], "correctAnswer": 1, "explanation": "单工作流适合流程明确的场景，如审批流程、客服SOP、数据处理管道。"}, {"id": "q052", "module": 3, "topic": "3.6", "difficulty": 2, "type": "single", "question": "Multi-Agent的层级模式中，主Agent的作用是什么？", "options": ["A. 直接回答所有问题", "B. 分配任务给子Agent并协调结果", "C. 存储数据", "D. 管理服务器"], "correctAnswer": 1, "explanation": "层级模式中主Agent负责分配任务给子Agent，并协调汇总各子Agent的结果。"}, {"id": "q053", "module": 3, "topic": "3.6", "difficulty": 2, "type": "single", "question": "以下哪种不是Multi-Agent的通信模式？", "options": ["A. 串行模式", "B. 并行模式", "C. 层级模式", "D. 随机模式"], "correctAnswer": 3, "explanation": "Multi-Agent通信模式包括串行、并行、层级三种，没有随机模式。"}, {"id": "q054", "module": 3, "topic": "3.1", "difficulty": 2, "type": "single", "question": "Prompt迭代的核心目的是什么？", "options": ["A. 增加代码量", "B. 通过反复测试和优化改进Agent效果", "C. 减少服务器成本", "D. 更换模型"], "correctAnswer": 1, "explanation": "Prompt迭代是通过反复测试、分析问题、优化提示词来持续改进Agent的行为和输出质量。"}, {"id": "q055", "module": 3, "topic": "3.2", "difficulty": 3, "type": "single", "question": "工具定义中必须包含哪些要素？", "options": ["A. 只有名称", "B. 名称、描述、参数Schema", "C. 只有参数", "D. 只有描述"], "correctAnswer": 1, "explanation": "工具定义需要包含名称（标识工具）、描述（告诉Agent工具能做什么）、参数Schema（定义输入格式）。"}, {"id": "q056", "module": 3, "topic": "3.3", "difficulty": 3, "type": "single", "question": "工作流中错误处理的策略不包括？", "options": ["A. 重试", "B. 降级", "C. 忽略错误继续执行", "D. 告警"], "correctAnswer": 2, "explanation": "错误处理策略包括重试、降级、告警等。忽略错误继续执行可能导致数据不一致或错误传播。"}, {"id": "q057", "module": 3, "topic": "3.4", "difficulty": 3, "type": "single", "question": "子工作流的主要价值是什么？", "options": ["A. 增加复杂性", "B. 模块化复用，简化主流程", "C. 降低性能", "D. 增加成本"], "correctAnswer": 1, "explanation": "子工作流将常用流程模块化，支持在主流程中复用，简化设计并提高可维护性。"}, {"id": "q058", "module": 3, "topic": "3.6", "difficulty": 3, "type": "single", "question": "在Multi-Agent系统中，冲突解决的常见策略是什么？", "options": ["A. 随机选择一个Agent的结果", "B. 由编排Agent根据预设规则裁决", "C. 忽略冲突", "D. 关闭系统"], "correctAnswer": 1, "explanation": "冲突通常由编排Agent根据预设规则（如优先级、投票、人工介入）进行裁决。"}, {"id": "q059", "module": 3, "topic": "3.1", "difficulty": 3, "type": "multiple", "question": "设计系统提示词时应包含哪些要素？（多选）", "options": ["A. 角色定义", "B. 能力边界", "C. 输出格式", "D. 异常处理规则"], "correctAnswer": [0, 1, 2, 3], "explanation": "系统提示词应包含角色定义、能力边界、输出格式、异常处理规则等要素。"}, {"id": "q060", "module": 3, "topic": "3.5", "difficulty": 2, "type": "single", "question": "单工作流应用与Multi-Agent的核心区别是什么？", "options": ["A. 单工作流更复杂", "B. 单工作流不需要Agent间通信", "C. Multi-Agent更简单", "D. 没有区别"], "correctAnswer": 1, "explanation": "单工作流在一个流程内完成所有逻辑，不需要Agent间通信；Multi-Agent需要多个Agent协作通信。"}, {"id": "q061", "module": 3, "topic": "3.2", "difficulty": 2, "type": "single", "question": "Agent选择工具时主要依据什么？", "options": ["A. 随机选择", "B. 用户意图与工具描述的匹配度", "C. 工具的名称长度", "D. 工具的创建时间"], "correctAnswer": 1, "explanation": "Agent根据用户意图与各工具描述的匹配度，自动选择最合适的工具。"}, {"id": "q062", "module": 3, "topic": "3.3", "difficulty": 2, "type": "single", "question": "知识检索节点在工作流中的作用是什么？", "options": ["A. 生成文本", "B. 查询知识库获取相关信息", "C. 发送HTTP请求", "D. 执行代码"], "correctAnswer": 1, "explanation": "知识检索节点负责查询知识库，获取与当前任务相关的信息供后续节点使用。"}, {"id": "q063", "module": 3, "topic": "3.4", "difficulty": 2, "type": "single", "question": "循环结构的退出条件通常是什么？", "options": ["A. 永远不退出", "B. 满足特定条件时退出", "C. 随机退出", "D. 由用户手动退出"], "correctAnswer": 1, "explanation": "循环结构在满足特定条件时退出，如达到最大次数、结果满足要求等。"}, {"id": "q064", "module": 3, "topic": "3.6", "difficulty": 3, "type": "single", "question": "某银行需要部署客服系统，涉及理财、贷款、信用卡三个专业领域。最适合的架构是？", "options": ["A. 简单Agent", "B. 单工作流", "C. Multi-Agent（路由Agent+三个专业Agent）", "D. 不使用AI"], "correctAnswer": 2, "explanation": "跨三个专业领域，需要路由Agent判断问题类型，分配给对应的专业Agent处理。"}, {"id": "q065", "module": 3, "topic": "3.1", "difficulty": 2, "type": "single", "question": "Agent的内置能力通常不包括？", "options": ["A. 知识库检索", "B. 联网搜索", "C. 物理世界操作", "D. 代码执行"], "correctAnswer": 2, "explanation": "内置能力通常包括知识库检索、联网搜索、代码执行等数字能力，不包括物理世界操作。"}, {"id": "q066", "module": 4, "topic": "4.1", "difficulty": 1, "type": "single", "question": "SPIN框架中S代表什么？", "options": ["A. Solution", "B. Situation", "C. System", "D. Strategy"], "correctAnswer": 1, "explanation": "SPIN中S代表Situation（了解现状），P代表Problem（发现问题），I代表Implication（分析影响），N代表Need-payoff（确认需求）。"}, {"id": "q067", "module": 4, "topic": "4.1", "difficulty": 2, "type": "single", "question": "AI适用性判断时，以下哪个场景最适合使用AI？", "options": ["A. 需要创造性艺术创作", "B. 涉及大量文本处理的7x24客服", "C. 需要物理操作的装配工作", "D. 只需计算1+1"], "correctAnswer": 1, "explanation": "大量文本处理+7x24服务是AI的典型适用场景，能发挥LLM的语言理解和生成能力。"}, {"id": "q068", "module": 4, "topic": "4.2", "difficulty": 1, "type": "single", "question": "Agent相比传统软件更适合哪种场景？", "options": ["A. 确定性逻辑的数学计算", "B. 规则模糊、需要推理的场景", "C. 简单的数据录入", "D. 固定格式的报表生成"], "correctAnswer": 1, "explanation": "Agent适合规则模糊、需要推理的场景；传统软件适合确定性逻辑的场景。"}, {"id": "q069", "module": 4, "topic": "4.2", "difficulty": 2, "type": "single", "question": "ROI估算中需要考虑的成本不包括？", "options": ["A. 开发成本", "B. 运维成本", "C. 团队午餐费用", "D. 人力节省"], "correctAnswer": 2, "explanation": "ROI估算考虑开发成本、运维成本与人力节省、效率提升的收益，午餐费用不属于项目成本。"}, {"id": "q070", "module": 4, "topic": "4.3", "difficulty": 2, "type": "single", "question": "'知识库+工作流+Agent'组合模式最适合什么场景？", "options": ["A. 简单问答", "B. 需要知识检索、流程控制和智能对话的复杂场景", "C. 纯计算任务", "D. 数据备份"], "correctAnswer": 1, "explanation": "知识库+工作流+Agent组合适合需要知识检索、流程控制和智能对话的复杂场景。"}, {"id": "q071", "module": 4, "topic": "4.4", "difficulty": 1, "type": "single", "question": "金融行业AI应用中，数据安全的核心要求是什么？", "options": ["A. 数据可以公开", "B. 客户数据不能出域，模型需私有化部署", "C. 不需要审计", "D. 不需要人工审核"], "correctAnswer": 1, "explanation": "金融行业数据安全要求高：客户数据不能出域、模型需私有化部署、审计日志完整。"}, {"id": "q072", "module": 4, "topic": "4.4", "difficulty": 2, "type": "single", "question": "金融行业对AI模型的特殊要求是什么？", "options": ["A. 不需要解释", "B. 模型可解释性和决策可追溯", "C. 不需要准确性", "D. 速度越慢越好"], "correctAnswer": 1, "explanation": "金融监管要求模型可解释（能解释为什么做这个决定）和决策可追溯（可以回看决策过程）。"}, {"id": "q073", "module": 4, "topic": "4.5", "difficulty": 1, "type": "single", "question": "政务场景通常要求的信息安全等级是？", "options": ["A. 一级等保", "B. 二级等保", "C. 三级等保", "D. 不需要等保"], "correctAnswer": 2, "explanation": "政务场景通常要求三级等保，涉及网络安全、数据安全、应用安全等方面。"}, {"id": "q074", "module": 4, "topic": "4.5", "difficulty": 2, "type": "single", "question": "政务AI应用需要覆盖哪些渠道？", "options": ["A. 只需要网站", "B. 网站/APP/窗口/电话等全渠道", "C. 只需要电话", "D. 不需要线上渠道"], "correctAnswer": 1, "explanation": "政务场景需要覆盖全渠道：网站、APP、微信小程序、12345热线、实体窗口等。"}, {"id": "q075", "module": 4, "topic": "4.6", "difficulty": 1, "type": "single", "question": "制造业AI应用中，视觉检测主要用于什么？", "options": ["A. 文本处理", "B. 产品质量检测和缺陷分类", "C. 音频处理", "D. 视频通话"], "correctAnswer": 1, "explanation": "视觉检测利用AI图像识别技术进行产品质量检测和缺陷分类。"}, {"id": "q076", "module": 4, "topic": "4.6", "difficulty": 2, "type": "single", "question": "零售业AI应用中，库存管理的核心功能是什么？", "options": ["A. 装饰店面", "B. 需求预测和自动补货", "C. 招聘员工", "D. 设计广告"], "correctAnswer": 1, "explanation": "AI库存管理通过需求预测自动调整库存水平，实现自动补货，减少库存积压和缺货。"}, {"id": "q077", "module": 4, "topic": "4.7", "difficulty": 1, "type": "single", "question": "医疗AI应用中，以下哪个是必须的合规要求？", "options": ["A. 可以替代医生诊断", "B. 标注'仅供参考'，不能替代医生诊断", "C. 不需要隐私保护", "D. 不需要准确性"], "correctAnswer": 1, "explanation": "医疗AI必须标注'仅供参考'，不能替代医生诊断，患者数据需脱敏保护。"}, {"id": "q078", "module": 4, "topic": "4.7", "difficulty": 2, "type": "single", "question": "教育AI应用相比真人教师的优势是什么？", "options": ["A. 完全替代教师", "B. 24小时在线、无限耐心、个性化", "C. 不需要教学内容", "D. 不需要评估效果"], "correctAnswer": 1, "explanation": "教育AI的优势在于24小时在线、无限耐心、能根据学生水平个性化调整。"}, {"id": "q079", "module": 4, "topic": "4.1", "difficulty": 3, "type": "single", "question": "客户说'我们想要一个AI客服'，FDE首先应该做什么？", "options": ["A. 立即开始开发", "B. 通过SPIN分析了解根本需求", "C. 拒绝客户", "D. 推荐最贵的方案"], "correctAnswer": 1, "explanation": "FDE应首先通过SPIN等框架深入分析客户的根本需求，而非直接跳到解决方案。"}, {"id": "q080", "module": 4, "topic": "4.3", "difficulty": 3, "type": "single", "question": "技术规格书中不需要包含以下哪项？", "options": ["A. 架构设计", "B. 性能指标", "C. 团队成员的生日", "D. 接口定义"], "correctAnswer": 2, "explanation": "技术规格书包括架构设计、模型选型、知识库设计、工作流设计、接口定义、性能指标等。"}, {"id": "q081", "module": 4, "topic": "4.4", "difficulty": 3, "type": "multiple", "question": "金融行业AI应用的典型场景包括？（多选）", "options": ["A. 智能客服", "B. 风控", "C. 合规审查", "D. 自动交易（无需人工监督）"], "correctAnswer": [0, 1, 2], "explanation": "金融行业典型场景包括智能客服、风控、合规审查。自动交易需要人工监督，不能完全自动化。"}, {"id": "q082", "module": 4, "topic": "4.1", "difficulty": 2, "type": "single", "question": "TDD框架中D代表什么？", "options": ["A. Data", "B. Domain", "C. Design", "D. Deploy"], "correctAnswer": 1, "explanation": "TDD框架：T=Technical（技术可行性），D=Domain（业务领域知识），D=Delivery（交付能力）。"}, {"id": "q083", "module": 4, "topic": "4.5", "difficulty": 3, "type": "single", "question": "政务场景中数据隔离的主要目的是什么？", "options": ["A. 增加成本", "B. 确保不同部门数据不交叉访问", "C. 降低性能", "D. 增加复杂性"], "correctAnswer": 1, "explanation": "数据隔离确保不同部门的数据独立存储和访问，防止数据交叉泄露。"}, {"id": "q084", "module": 4, "topic": "4.7", "difficulty": 3, "type": "single", "question": "医疗AI系统中，患者数据应该如何处理？", "options": ["A. 公开存储", "B. 脱敏处理后使用", "C. 不做任何处理", "D. 只存储不删除"], "correctAnswer": 1, "explanation": "患者数据需要脱敏处理（去除个人身份信息），保护患者隐私。"}, {"id": "q085", "module": 4, "topic": "4.2", "difficulty": 3, "type": "single", "question": "评估一个场景是否适合用Agent解决时，以下哪个因素最不重要？", "options": ["A. 任务的复杂度", "B. 是否需要推理能力", "C. 办公室的装修风格", "D. 预期ROI"], "correctAnswer": 2, "explanation": "办公室装修风格与AI方案适配性无关，任务复杂度、推理需求和ROI才是关键因素。"}, {"id": "q086", "module": 4, "topic": "4.6", "difficulty": 2, "type": "single", "question": "制造业中预测性维护的核心价值是什么？", "options": ["A. 增加维修成本", "B. 通过数据分析预测设备故障时间，减少非计划停机", "C. 延长工作时间", "D. 减少产量"], "correctAnswer": 1, "explanation": "预测性维护通过数据分析预测设备何时可能故障，提前维护，减少非计划停机损失。"}, {"id": "q087", "module": 4, "topic": "4.3", "difficulty": 2, "type": "single", "question": "能力映射的作用是什么？", "options": ["A. 绘制地图", "B. 将业务需求对应到平台具体功能", "C. 管理团队", "D. 设计logo"], "correctAnswer": 1, "explanation": "能力映射将客户的业务需求对应到ADP平台的具体功能模块，确保需求被正确实现。"}, {"id": "q088", "module": 4, "topic": "4.4", "difficulty": 2, "type": "single", "question": "金融AI系统中'人工兜底机制'的含义是什么？", "options": ["A. 完全不需要人工", "B. AI无法处理时转交人工处理", "C. 人工替代AI", "D. 人工做所有工作"], "correctAnswer": 1, "explanation": "人工兜底指AI无法处理或置信度低时，将问题转交人工处理，确保服务质量。"}, {"id": "q089", "module": 4, "topic": "4.5", "difficulty": 2, "type": "single", "question": "政务AI的适老化设计考虑的是什么？", "options": ["A. 只服务年轻人", "B. 考虑老年人使用习惯，如大字体、语音交互等", "C. 增加操作复杂度", "D. 取消线下服务"], "correctAnswer": 1, "explanation": "适老化设计考虑老年人使用习惯，如大字体、简化操作、语音交互、人工辅助等。"}, {"id": "q090", "module": 4, "topic": "4.6", "difficulty": 3, "type": "single", "question": "制造业和零售业AI应用的核心差异是什么？", "options": ["A. 没有差异", "B. 制造业注重准确性和可靠性，零售业注重实时性和个性化", "C. 制造业不需要AI", "D. 零售业不需要准确性"], "correctAnswer": 1, "explanation": "制造业AI注重准确性和可靠性（如质检不能出错），零售业注重实时性和个性化（如推荐要即时）。"}, {"id": "q091", "module": 5, "topic": "5.1", "difficulty": 1, "type": "single", "question": "POC的周期通常是多长？", "options": ["A. 1天", "B. 1-2周", "C. 3个月", "D. 1年"], "correctAnswer": 1, "explanation": "POC周期通常1-2周，用最小成本快速验证方案可行性。"}, {"id": "q092", "module": 5, "topic": "5.2", "difficulty": 1, "type": "single", "question": "效果评测中'忠实度'衡量的是什么？", "options": ["A. 回答是否正确", "B. 回答是否忠于检索到的内容，不编造", "C. 检索速度", "D. 系统稳定性"], "correctAnswer": 1, "explanation": "忠实度衡量回答是否忠于检索到的内容，即模型有没有'自由发挥'编造信息。"}, {"id": "q093", "module": 5, "topic": "5.3", "difficulty": 2, "type": "single", "question": "recall@5衡量的是什么？", "options": ["A. 第5个结果的正确率", "B. 前5个检索结果中包含相关文档的比例", "C. 5秒内的响应率", "D. 5次尝试的成功率"], "correctAnswer": 1, "explanation": "recall@5衡量前5个检索结果中包含相关文档的比例，即'让你找5个，找到了几个对的'。"}, {"id": "q094", "module": 5, "topic": "5.4", "difficulty": 2, "type": "single", "question": "流式输出的主要优势是什么？", "options": ["A. 提高最终准确性", "B. 降低用户感知的首次响应延迟", "C. 减少服务器成本", "D. 增加Token消耗"], "correctAnswer": 1, "explanation": "流式输出逐token返回，用户不用等完整回答，感知的首次响应延迟大幅降低。"}, {"id": "q095", "module": 5, "topic": "5.5", "difficulty": 2, "type": "single", "question": "语义缓存的工作原理是什么？", "options": ["A. 精确匹配问题文本", "B. 计算问题语义相似度，相似问题直接返回缓存结果", "C. 随机返回结果", "D. 不缓存"], "correctAnswer": 1, "explanation": "语义缓存通过计算新问题和已缓存问题的语义相似度，相似度超过阈值时直接返回缓存结果。"}, {"id": "q096", "module": 5, "topic": "5.1", "difficulty": 2, "type": "single", "question": "POC成功标准应该具备什么特点？", "options": ["A. 模糊的描述", "B. 量化的指标", "C. 主观的感受", "D. 不需要标准"], "correctAnswer": 1, "explanation": "POC成功标准应该是量化的指标，如准确率>85%、响应时间<3秒，便于客观判断。"}, {"id": "q097", "module": 5, "topic": "5.6", "difficulty": 2, "type": "single", "question": "Agent行为追踪应该记录什么？", "options": ["A. 只记录最终结果", "B. 每一步决策和工具调用", "C. 不记录", "D. 只记录错误"], "correctAnswer": 1, "explanation": "Agent行为追踪应记录每一步决策和工具调用，便于调试、审计和优化。"}, {"id": "q098", "module": 5, "topic": "5.7", "difficulty": 2, "type": "single", "question": "降级策略的含义是什么？", "options": ["A. 关闭系统", "B. 切换到备用模型或简化流程保证基本服务", "C. 降低产品质量", "D. 解雇员工"], "correctAnswer": 1, "explanation": "降级策略是在主系统出问题时，切换到备用模型或简化流程，保证基本服务可用。"}, {"id": "q099", "module": 5, "topic": "5.4", "difficulty": 3, "type": "single", "question": "KV Cache加速推理的原理是什么？", "options": ["A. 减少模型参数", "B. 缓存已计算的key-value对，避免重复计算", "C. 增加GPU数量", "D. 降低网络延迟"], "correctAnswer": 1, "explanation": "KV Cache缓存之前已计算的key-value对，在生成下一个token时避免重复计算，加速推理。"}, {"id": "q100", "module": 5, "topic": "5.2", "difficulty": 3, "type": "single", "question": "LLM-as-Judge评测方法的特点是什么？", "options": ["A. 使用大模型评估另一个模型的输出质量", "B. 让人工评分", "C. 使用规则匹配", "D. 不评估"], "correctAnswer": 0, "explanation": "LLM-as-Judge使用大模型作为评判者，评估另一个模型输出的质量，效率高但可能有偏差。"}, {"id": "q101", "module": 5, "topic": "5.3", "difficulty": 3, "type": "single", "question": "MRR（Mean Reciprocal Rank）的计算方式是什么？", "options": ["A. 所有相关文档排名的平均值", "B. 第一个相关结果排名倒数的均值", "C. 最后一个相关结果的排名", "D. 检索结果的总数"], "correctAnswer": 1, "explanation": "MRR是第一个相关结果排名倒数的均值。如第一个相关结果排第2，则RR=1/2=0.5。"}, {"id": "q102", "module": 5, "topic": "5.5", "difficulty": 3, "type": "single", "question": "Token成本的计算公式是什么？", "options": ["A. 输入token×单价", "B. 输入token×输入单价+输出token×输出单价", "C. 只计算输出token", "D. 按时间计费"], "correctAnswer": 1, "explanation": "Token成本=输入token×输入单价+输出token×输出单价，通常输出单价高于输入。"}, {"id": "q103", "module": 5, "topic": "5.7", "difficulty": 3, "type": "single", "question": "按请求ID追踪完整链路属于什么排查方法？", "options": ["A. 代码审查", "B. 日志排查", "C. 人工测试", "D. 用户反馈"], "correctAnswer": 1, "explanation": "按请求ID追踪完整调用链路是日志排查的核心方法，可以看到请求在每个环节的处理情况。"}, {"id": "q104", "module": 5, "topic": "5.4", "difficulty": 2, "type": "single", "question": "模型量化INT8的含义是什么？", "options": ["A. 使用8个模型", "B. 将参数精度降低为8位整数", "C. 训练8次", "D. 使用8层网络"], "correctAnswer": 1, "explanation": "INT8量化将模型参数从FP16/FP32降低为8位整数，减少显存占用和计算量，精度损失较小。"}, {"id": "q105", "module": 5, "topic": "5.6", "difficulty": 3, "type": "multiple", "question": "监控仪表盘应该展示哪些核心指标？（多选）", "options": ["A. QPS（每秒查询数）", "B. 延迟", "C. 错误率", "D. Token消耗"], "correctAnswer": [0, 1, 2, 3], "explanation": "监控仪表盘应展示QPS、延迟、错误率、Token消耗等核心指标，全面反映系统状态。"}, {"id": "q106", "module": 6, "topic": "6.1", "difficulty": 1, "type": "single", "question": "数据分类分级中，最高级别通常是？", "options": ["A. 公开", "B. 内部", "C. 机密", "D. 绝密"], "correctAnswer": 3, "explanation": "数据分类分级通常为：公开→内部→机密→绝密，绝密为最高级别。"}, {"id": "q107", "module": 6, "topic": "6.1", "difficulty": 2, "type": "single", "question": "RBAC的含义是什么？", "options": ["A. 基于角色的访问控制", "B. 基于规则的备份策略", "C. 快速数据访问通道", "D. 远程备份和恢复"], "correctAnswer": 0, "explanation": "RBAC = Role-Based Access Control，基于角色的访问控制，不同角色有不同的数据访问权限。"}, {"id": "q108", "module": 6, "topic": "6.2", "difficulty": 1, "type": "single", "question": "Prompt注入攻击的目的是什么？", "options": ["A. 提升系统性能", "B. 绕过安全限制让模型生成不当内容", "C. 帮助系统升级", "D. 改善用户体验"], "correctAnswer": 1, "explanation": "Prompt注入通过精心构造的输入绕过模型的安全限制，诱导模型生成不当内容。"}, {"id": "q109", "module": 6, "topic": "6.3", "difficulty": 2, "type": "single", "question": "最小权限原则的含义是什么？", "options": ["A. 给所有用户最大权限", "B. 只授予完成任务所需的最小权限", "C. 不给任何权限", "D. 权限越大越好"], "correctAnswer": 1, "explanation": "最小权限原则只授予Agent或用户完成任务所需的最小权限，减少越权风险。"}, {"id": "q110", "module": 6, "topic": "6.3", "difficulty": 2, "type": "single", "question": "以下哪个不是缓解模型幻觉的有效策略？", "options": ["A. RAG引入外部知识", "B. 设置置信度阈值", "C. 让模型随意发挥不加约束", "D. 引用溯源"], "correctAnswer": 2, "explanation": "让模型随意发挥不加约束会加剧幻觉。有效策略包括RAG、置信度阈值、引用溯源等。"}, {"id": "q111", "module": 6, "topic": "6.4", "difficulty": 1, "type": "single", "question": "负责任AI的核心原则不包括？", "options": ["A. 公平性", "B. 透明性", "C. 隐蔽性", "D. 安全性"], "correctAnswer": 2, "explanation": "负责任AI原则包括公平性、透明性、隐私性、安全性。隐蔽性与透明性相悖。"}, {"id": "q112", "module": 6, "topic": "6.4", "difficulty": 2, "type": "single", "question": "《生成式人工智能服务管理暂行办法》要求AI生成内容应该？", "options": ["A. 不标注来源", "B. 标注为AI生成", "C. 冒充人工创作", "D. 不需要合规"], "correctAnswer": 1, "explanation": "法规要求标注AI生成内容，让用户知道这是AI生成的而非人工创作。"}, {"id": "q113", "module": 6, "topic": "6.1", "difficulty": 3, "type": "single", "question": "PII保护中，以下哪个不属于PII？", "options": ["A. 手机号", "B. 身份证号", "C. 公司名称", "D. 银行卡号"], "correctAnswer": 2, "explanation": "PII（个人身份信息）包括手机号、身份证号、银行卡号等个人信息。公司名称是公开信息，不属于PII。"}, {"id": "q114", "module": 6, "topic": "6.2", "difficulty": 3, "type": "single", "question": "输出审核策略中，'实时审核'和'异步审核'的区别是什么？", "options": ["A. 没有区别", "B. 实时审核在生成时立即检查，异步审核生成后延迟检查", "C. 实时审核更不准确", "D. 异步审核更快"], "correctAnswer": 1, "explanation": "实时审核在内容生成时立即检查并拦截，异步审核在生成后延迟检查，适用于对延迟不敏感的场景。"}, {"id": "q115", "module": 6, "topic": "6.3", "difficulty": 3, "type": "multiple", "question": "模型幻觉的常见原因包括？（多选）", "options": ["A. 训练数据偏差", "B. 知识截止日期后的信息", "C. 模型过度自信", "D. 充足的上下文信息"], "correctAnswer": [0, 1, 2], "explanation": "幻觉原因包括训练数据偏差（A）、知识截止后信息缺失（B）、模型过度自信（C）。充足上下文（D）有助于减少幻觉。"}, {"id": "q116", "module": 7, "topic": "7.1", "difficulty": 1, "type": "single", "question": "容器与虚拟机的主要区别是什么？", "options": ["A. 容器更慢", "B. 容器共享宿主机内核更轻量，虚拟机有独立操作系统", "C. 没有区别", "D. 虚拟机更轻量"], "correctAnswer": 1, "explanation": "容器共享宿主机内核，更轻量启动更快；虚拟机有独立操作系统，更隔离但更重。"}, {"id": "q117", "module": 7, "topic": "7.1", "difficulty": 2, "type": "single", "question": "Dockerfile的作用是什么？", "options": ["A. 运行容器", "B. 定义镜像构建步骤", "C. 管理网络", "D. 存储数据"], "correctAnswer": 1, "explanation": "Dockerfile定义了镜像的构建步骤，包括基础镜像、依赖安装、代码复制、启动命令等。"}, {"id": "q118", "module": 7, "topic": "7.2", "difficulty": 1, "type": "single", "question": "Kubernetes中Pod是什么？", "options": ["A. 一种数据库", "B. 最小部署单元，包含一个或多个容器", "C. 一种网络协议", "D. 一种存储设备"], "correctAnswer": 1, "explanation": "Pod是K8s中最小的部署单元，包含一个或多个紧密关联的容器。"}, {"id": "q119", "module": 7, "topic": "7.3", "difficulty": 2, "type": "single", "question": "蓝绿部署的核心思想是什么？", "options": ["A. 只有一套环境", "B. 同时维护两套环境，切换流量实现零停机更新", "C. 不更新直接下线", "D. 手动重启"], "correctAnswer": 1, "explanation": "蓝绿部署维护两套环境（蓝和绿），新版本部署在绿环境，验证后将流量从蓝切到绿，实现零停机。"}, {"id": "q120", "module": 7, "topic": "7.3", "difficulty": 2, "type": "single", "question": "金丝雀发布的含义是什么？", "options": ["A. 发布带鸟图案的版本", "B. 先向少量用户发布新版本，验证后逐步扩大", "C. 向所有用户同时发布", "D. 不发布"], "correctAnswer": 1, "explanation": "金丝雀发布先向少量用户（如5%）发布新版本，验证无误后逐步扩大比例，降低风险。"}, {"id": "q121", "module": 7, "topic": "7.4", "difficulty": 2, "type": "single", "question": "vLLM推理引擎的核心特性是什么？", "options": ["A. 只支持小模型", "B. 支持PagedAttention实现高吞吐推理", "C. 不支持GPU", "D. 只能本地运行"], "correctAnswer": 1, "explanation": "vLLM的核心特性是PagedAttention技术，通过优化显存管理实现高吞吐LLM推理。"}, {"id": "q122", "module": 7, "topic": "7.4", "difficulty": 3, "type": "single", "question": "AWQ量化的全称和含义是什么？", "options": ["A. Average Weight Quantization", "B. Activation-aware Weight Quantization，感知激活的权重量化", "C. Auto Weight Query", "D. Adaptive Width Quality"], "correctAnswer": 1, "explanation": "AWQ = Activation-aware Weight Quantization，根据激活值的重要性进行差异化量化，保留重要权重精度。"}, {"id": "q123", "module": 7, "topic": "7.5", "difficulty": 1, "type": "single", "question": "VPC的作用是什么？", "options": ["A. 加速网络", "B. 虚拟私有云，隔离网络环境", "C. 存储数据", "D. 运行容器"], "correctAnswer": 1, "explanation": "VPC（Virtual Private Cloud）虚拟私有云，用于隔离网络环境，提供安全的网络空间。"}, {"id": "q124", "module": 7, "topic": "7.5", "difficulty": 2, "type": "single", "question": "反向代理的主要功能不包括？", "options": ["A. 转发请求", "B. 负载均衡", "C. 数据加密", "D. 安全防护"], "correctAnswer": 2, "explanation": "反向代理主要功能包括请求转发、负载均衡、安全防护。数据加密通常由SSL/TLS处理。"}, {"id": "q125", "module": 7, "topic": "7.1", "difficulty": 3, "type": "single", "question": "Docker Volume的主要作用是什么？", "options": ["A. 增加容器数量", "B. 容器数据持久化，容器删除后数据不丢失", "C. 加速容器启动", "D. 减少镜像大小"], "correctAnswer": 1, "explanation": "Volume实现容器数据持久化，即使容器被删除，数据仍然保留在Volume中。"}];
+const SP = {"1-1": ["1.1"], "1-2": ["1.2"], "1-3": ["1.3"], "1-4": ["1.4"], "1-5": ["1.5"], "1-6": ["1.6"], "1-7": ["review-w1"], "2-1": ["2.1"], "2-2": ["2.2"], "2-3": ["2.3"], "2-4": ["2.4"], "2-5": ["2.5"], "2-6": ["2.6"], "2-7": ["review-w2"], "3-1": ["3.1"], "3-2": ["3.2"], "3-3": ["3.3"], "3-4": ["3.4"], "3-5": ["3.5"], "3-6": ["3.6"], "3-7": ["review-w3"], "4-1": ["4.1"], "4-2": ["4.2"], "4-3": ["4.3"], "4-4": ["4.4"], "4-5": ["4.5"], "4-6": ["4.6"], "4-7": ["4.7"], "5-1": ["3.3", "3.4"], "5-2": ["3.5", "3.6"], "5-3": ["2.4", "2.5"], "5-4": ["2.6"], "5-5": ["4.3"], "5-6": ["comprehensive-practice"], "5-7": ["review-w5"], "6-1": ["5.1"], "6-2": ["5.2"], "6-3": ["5.3"], "6-4": ["5.4"], "6-5": ["5.5"], "6-6": ["5.6"], "6-7": ["5.7"], "7-1": ["6.1"], "7-2": ["6.2"], "7-3": ["6.3"], "7-4": ["6.4"], "7-5": ["7.1"], "7-6": ["7.2", "7.3"], "7-7": ["review-w7"], "8-1": ["7.4"], "8-2": ["7.5"], "8-3": ["5.1", "5.2"], "8-4": ["5.3", "5.4"], "8-5": ["5.5", "5.6"], "8-6": ["5.7"], "8-7": ["review-w8"], "9-1": ["review-m1"], "9-2": ["review-m2"], "9-3": ["review-m3"], "9-4": ["review-m4"], "9-5": ["mock-exam-1"], "9-6": ["mock-exam-2"], "9-7": ["review-w9"], "10-1": ["review-all"], "10-2": ["mock-exam-3"], "10-3": ["review-weak"], "10-4": ["review-formulas"], "10-5": ["final-review"], "10-6": ["rest"]};
+
+const EXAM_DATE = '2026-12-27';
+const START_DATE = '2026-10-13';
+const REVIEW_INTERVALS = [0, 1, 3, 7, 14, 30];
+const MODULE_COLORS = ['#0052D9','#00A870','#FAAD14','#E34D59','#7C5CFC','#00C5FF','#FF8A00'];
+const MODULE_NAMES = ['','AI与生成式AI基础','ADP核心功能与应用搭建','智能体开发','场景理解与方案设计','交付实施·评测与运维','安全合规与责任AI','云原生与部署基础'];
+
+// ==================== STATE MANAGEMENT ====================
+function getProfile() {
+    let p = localStorage.getItem('fde_profile');
+    if (!p) { p = JSON.stringify({startDate:START_DATE, examDate:EXAM_DATE, name:'学员'}); localStorage.setItem('fde_profile', p); }
+    return JSON.parse(p);
+}
+function getProgress() {
+    let p = localStorage.getItem('fde_progress');
+    if (!p) { p = JSON.stringify({currentDay:1, totalDaysStudied:0, currentStreak:0, longestStreak:0, lastStudyDate:null, days:{}}); localStorage.setItem('fde_progress', p); }
+    return JSON.parse(p);
+}
+function saveProgress(prog) { localStorage.setItem('fde_progress', JSON.stringify(prog)); }
+function getMastery() {
+    let m = localStorage.getItem('fde_mastery');
+    if (!m) { m = '{}'; localStorage.setItem('fde_mastery', m); }
+    return JSON.parse(m);
+}
+function saveMastery(m) { localStorage.setItem('fde_mastery', JSON.stringify(m)); }
+function getQuizHistory() {
+    let q = localStorage.getItem('fde_quizHistory');
+    if (!q) { q = JSON.stringify({sessions:[]}); localStorage.setItem('fde_quizHistory', q); }
+    return JSON.parse(q);
+}
+function saveQuizHistory(q) { localStorage.setItem('fde_quizHistory', JSON.stringify(q)); }
+function getNotes() {
+    let n = localStorage.getItem('fde_notes');
+    if (!n) { n = '{}'; localStorage.setItem('fde_notes', n); }
+    return JSON.parse(n);
+}
+function saveNotes(n) { localStorage.setItem('fde_notes', JSON.stringify(n)); }
+function getSummaries() {
+    let s = localStorage.getItem('fde_summaries');
+    if (!s) { s = JSON.stringify([]); localStorage.setItem('fde_summaries', s); }
+    return JSON.parse(s);
+}
+function saveSummaries(s) { localStorage.setItem('fde_summaries', JSON.stringify(s)); }
+function todayStr() { return new Date().toISOString().split('T')[0]; }
+function daysBetween(d1, d2) { return Math.floor((new Date(d2) - new Date(d1)) / 86400000); }
+function addDays(d, n) { let dt = new Date(d); dt.setDate(dt.getDate()+n); return dt.toISOString().split('T')[0]; }
+
+// ==================== SPACED REPETITION ====================
+function updateMastery(topicId, score) {
+    let mastery = getMastery();
+    if (!mastery[topicId]) mastery[topicId] = {masteryLevel:0, masteryScore:0, totalAttempts:0, correctAttempts:0, lastReviewed:null, nextReview:todayStr(), history:[]};
+    let m = mastery[topicId];
+    m.totalAttempts++;
+    m.lastReviewed = todayStr();
+    m.history.push({date:todayStr(), score:score});
+    let isSprint = getCurrentWeek() >= 9;
+    let intervals = isSprint ? REVIEW_INTERVALS.map(x => Math.max(1, Math.floor(x/2))) : REVIEW_INTERVALS;
+    if (score >= 80) { m.masteryLevel = Math.min(5, m.masteryLevel + 1); m.correctAttempts++; }
+    else if (score >= 60) { /* maintain */ }
+    else { m.masteryLevel = m.masteryLevel === 5 ? 3 : Math.max(0, m.masteryLevel - 2); }
+    m.masteryScore = Math.round((m.correctAttempts / m.totalAttempts) * 100);
+    m.nextReview = addDays(todayStr(), intervals[m.masteryLevel] || 1);
+    saveMastery(mastery);
+}
+function getDueTopics() {
+    let mastery = getMastery();
+    let today = todayStr();
+    let due = [];
+    for (let id in mastery) {
+        if (mastery[id].nextReview && mastery[id].nextReview <= today) due.push(id);
+    }
+    return due;
+}
+function getCurrentWeek() {
+    let prog = getProgress();
+    let days = daysBetween(START_DATE, todayStr());
+    return Math.min(10, Math.floor(days / 7) + 1);
+}
+function getCurrentDayInWeek() {
+    let days = daysBetween(START_DATE, todayStr());
+    return (days % 7) + 1;
+}
+function getTodayTopics() {
+    let w = getCurrentWeek(), d = getCurrentDayInWeek();
+    let key = w + '-' + d;
+    return SP[key] || [];
+}
+
+// ==================== NAVIGATION ====================
+let currentView = 'dashboard';
+document.getElementById('navTabs').addEventListener('click', function(e) {
+    let tab = e.target.closest('.nav-tab');
+    if (!tab) return;
+    let view = tab.dataset.view;
+    switchView(view);
+});
+function switchView(view) {
+    currentView = view;
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.toggle('active', t.dataset.view === view));
+    document.querySelectorAll('.view').forEach(v => v.classList.toggle('active', v.id === 'view-' + view));
+    renderView(view);
+}
+function renderView(view) {
+    switch(view) {
+        case 'dashboard': renderDashboard(); break;
+        case 'learn': renderLearn(); break;
+        case 'quiz': renderQuiz(); break;
+        case 'exam': renderExam(); break;
+        case 'calendar': renderCalendar(); break;
+        case 'stats': renderStats(); break;
+        case 'resources': renderResources(); break;
+        case 'summaries': renderSummaries(); break;
+    }
+}
+
+// ==================== DASHBOARD ====================
+function renderDashboard() {
+    let prog = getProgress();
+    let mastery = getMastery();
+    let today = todayStr();
+    let daysToExam = daysBetween(today, EXAM_DATE);
+    document.getElementById('examCountdown').textContent = '距离考试: ' + Math.max(0, daysToExam) + '天';
+    // Check missed days
+    handleMissedDays();
+    // Calculate stats
+    let totalKP = KP.length;
+    let studiedKP = Object.keys(mastery).filter(k => mastery[k].totalAttempts > 0).length;
+    let overallPct = totalKP > 0 ? Math.round((studiedKP / totalKP) * 100) : 0;
+    let todayDone = prog.days[today] && prog.days[today].completed;
+    // Module mastery
+    let moduleMastery = {};
+    for (let i = 1; i <= 7; i++) {
+        let kps = KP.filter(k => k.module === i);
+        let scores = kps.map(k => mastery[k.id] ? mastery[k.id].masteryScore : 0);
+        moduleMastery[i] = scores.length > 0 ? Math.round(scores.reduce((a,b)=>a+b,0) / scores.length) : 0;
+    }
+    // Today's topics
+    let todayTopics = getTodayTopics();
+    let topicNames = todayTopics.map(tid => {
+        let kp = KP.find(k => k.id === tid);
+        return kp ? kp.id + ' ' + kp.title : tid;
+    });
+    // Due topics
+    let dueTopics = getDueTopics();
+    let dueNames = dueTopics.slice(0, 5).map(tid => {
+        let kp = KP.find(k => k.id === tid);
+        let m = mastery[tid];
+        let overdue = m && m.nextReview ? daysBetween(m.nextReview, today) : 0;
+        return (kp ? kp.id + ' ' + kp.title : tid) + (overdue > 0 ? ' (逾期' + overdue + '天)' : '');
+    });
+    // Score trend (last 7 days)
+    let qh = getQuizHistory();
+    let recentScores = [];
+    for (let i = 6; i >= 0; i--) {
+        let d = addDays(today, -i);
+        let session = qh.sessions.find(s => s.date === d);
+        recentScores.push({date: d, score: session ? session.score : null});
+    }
+    // Exam readiness
+    let readiness = Math.round(overallPct * 0.6 + Object.values(moduleMastery).reduce((a,b)=>a+b,0) / 7 * 0.4);
+    let passProb = Math.min(99, Math.round(readiness * 1.1));
+
+    let html = '';
+    // Stats cards
+    html += '<div class="grid-4 mb-16">';
+    html += '<div class="card stat-card"><div class="stat-value">' + overallPct + '%</div><div class="stat-label">总体进度 (' + studiedKP + '/' + totalKP + ')</div><div class="progress-bar mt-8"><div class="fill" style="width:' + overallPct + '%;background:var(--primary)"></div></div></div>';
+    html += '<div class="card stat-card success"><div class="stat-value">' + prog.currentStreak + '天</div><div class="stat-label">连续打卡</div></div>';
+    html += '<div class="card stat-card warning"><div class="stat-value">' + prog.longestStreak + '天</div><div class="stat-label">最长连续</div></div>';
+    html += '<div class="card stat-card"><div class="stat-value">' + (todayDone ? '<span style="color:var(--success)">已完成</span>' : '<span style="color:var(--warning)">待完成</span>') + '</div><div class="stat-label">今日状态</div></div>';
+    html += '</div>';
+    // Module mastery
+    html += '<div class="card"><div class="card-title">各模块掌握度</div>';
+    for (let i = 1; i <= 7; i++) {
+        let pct = moduleMastery[i];
+        html += '<div class="module-bar"><div class="bar-label">' + MODULE_NAMES[i] + '</div><div class="bar-bg"><div class="bar-fill" style="width:' + pct + '%;background:' + MODULE_COLORS[i-1] + '">' + (pct > 15 ? pct + '%' : '') + '</div></div><div class="bar-pct">' + pct + '%</div></div>';
+    }
+    html += '</div>';
+    // Today's plan
+    html += '<div class="card"><div class="card-title">今日学习计划 (第' + getCurrentWeek() + '周 第' + getCurrentDayInWeek() + '天)</div>';
+    if (topicNames.length > 0) {
+        html += '<div class="mb-8" style="font-size:14px;color:var(--text2)">知识点: ' + topicNames.join(', ') + '</div>';
+        html += '<div class="flex gap-8"><button class="btn btn-primary" onclick="switchView(\'learn\')">开始学习</button><button class="btn btn-success" onclick="switchView(\'quiz\')">开始测验</button></div>';
+    } else {
+        html += '<div style="color:var(--text3)">今日为复习/模拟考日</div>';
+    }
+    html += '</div>';
+    // Score trend
+    html += '<div class="card"><div class="card-title">近7天得分趋势</div><div class="chart-container"><canvas id="trendChart" height="120"></canvas></div></div>';
+    // Due topics
+    if (dueNames.length > 0) {
+        html += '<div class="card"><div class="card-title" style="color:var(--warning)">需要复习的主题</div>';
+        dueNames.forEach(n => { html += '<div style="padding:4px 0;font-size:13px;color:var(--text2)">• ' + n + '</div>'; });
+        html += '</div>';
+    }
+    // Exam readiness
+    html += '<div class="card"><div class="card-title">考试准备度</div>';
+    html += '<div style="display:flex;align-items:center;gap:20px"><div style="font-size:36px;font-weight:700;color:var(--primary)">' + readiness + '分</div><div><div style="font-size:14px;color:var(--text2)">预测通过率: <strong style="color:var(--success)">' + passProb + '%</strong></div><div class="progress-bar mt-8" style="width:200px"><div class="fill" style="width:' + passProb + '%;background:var(--success)"></div></div></div></div>';
+    html += '</div>';
+
+    document.getElementById('view-dashboard').innerHTML = html;
+    // Draw trend chart
+    drawTrendChart(recentScores);
+}
+
+function drawTrendChart(scores) {
+    let canvas = document.getElementById('trendChart');
+    if (!canvas) return;
+    let ctx = canvas.getContext('2d');
+    let w = canvas.parentElement.clientWidth;
+    canvas.width = w; canvas.height = 120;
+    ctx.clearRect(0, 0, w, 120);
+    let validScores = scores.filter(s => s.score !== null);
+    if (validScores.length === 0) {
+        ctx.fillStyle = '#86909C'; ctx.font = '13px sans-serif'; ctx.textAlign = 'center';
+        ctx.fillText('暂无测验数据', w/2, 60); return;
+    }
+    let pad = 30, gw = w - pad*2, gh = 80;
+    // Grid
+    ctx.strokeStyle = '#E5E6EB'; ctx.lineWidth = 0.5;
+    for (let i = 0; i <= 4; i++) { let y = pad + gh - (gh * i / 4); ctx.beginPath(); ctx.moveTo(pad, y); ctx.lineTo(w-pad, y); ctx.stroke(); }
+    // Labels
+    ctx.fillStyle = '#86909C'; ctx.font = '10px sans-serif'; ctx.textAlign = 'right';
+    for (let i = 0; i <= 4; i++) { ctx.fillText((i*25)+'', pad-5, pad+gh-(gh*i/4)+3); }
+    // Line
+    let pts = [];
+    scores.forEach((s, i) => {
+        if (s.score !== null) {
+            let x = pad + (gw * i / (scores.length - 1 || 1));
+            let y = pad + gh - (gh * s.score / 100);
+            pts.push({x, y, score: s.score, date: s.date});
+        }
+    });
+    if (pts.length > 1) {
+        ctx.strokeStyle = '#0052D9'; ctx.lineWidth = 2; ctx.beginPath();
+        pts.forEach((p, i) => { i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y); });
+        ctx.stroke();
+    }
+    pts.forEach(p => {
+        ctx.fillStyle = '#0052D9'; ctx.beginPath(); ctx.arc(p.x, p.y, 4, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = '#1D2129'; ctx.font = '10px sans-serif'; ctx.textAlign = 'center';
+        ctx.fillText(p.score + '', p.x, p.y - 10);
+    });
+}
+
+function handleMissedDays() {
+    let prog = getProgress();
+    if (!prog.lastStudyDate) return;
+    let last = prog.lastStudyDate;
+    let today = todayStr();
+    let missed = daysBetween(last, today) - 1;
+    if (missed <= 0) return;
+    // Mark missed days
+    for (let i = 1; i <= missed; i++) {
+        let d = addDays(last, i);
+        if (!prog.days[d]) prog.days[d] = {completed: false, missed: true, topicsStudied: [], quizScore: 0};
+    }
+    prog.currentStreak = 0;
+    saveProgress(prog);
+}
+
+// ==================== LEARN VIEW ====================
+let selectedKP = null;
+let selectedKPTab = 'official';
+function renderLearn() {
+    if (!selectedKP) selectedKP = KP[0].id;
+    let mastery = getMastery();
+    let notes = getNotes();
+    // Sidebar
+    let sidebar = '<div class="learn-sidebar">';
+    let currentModule = 0;
+    KP.forEach(kp => {
+        if (kp.module !== currentModule) {
+            if (currentModule > 0) sidebar += '</div>';
+            currentModule = kp.module;
+            sidebar += '<div class="module-group"><div class="module-header">模块' + currentModule + ': ' + MODULE_NAMES[currentModule] + '</div>';
+        }
+        let m = mastery[kp.id];
+        let status = !m || m.totalAttempts === 0 ? '#E5E6EB' : m.masteryLevel >= 4 ? '#00A870' : m.masteryLevel >= 2 ? '#FAAD14' : '#E34D59';
+        let active = kp.id === selectedKP ? ' active' : '';
+        sidebar += '<div class="kp-item' + active + '" onclick="selectKP(\'' + kp.id + '\')"><span class="kp-dot" style="background:' + status + '"></span>' + kp.id + ' ' + kp.title + '</div>';
+    });
+    if (currentModule > 0) sidebar += '</div>';
+    sidebar += '</div>';
+    // Main content
+    let kp = KP.find(k => k.id === selectedKP);
+    if (!kp) { document.getElementById('view-learn').innerHTML = sidebar; return; }
+    let note = notes[kp.id] || {text: '', marked: false, starred: false};
+    let main = '<div class="learn-main">';
+    main += '<h2 style="font-size:18px;margin-bottom:4px">' + kp.id + ' ' + kp.title + '</h2>';
+    main += '<div style="font-size:12px;color:var(--text3);margin-bottom:16px">模块' + kp.module + ': ' + kp.moduleName + ' | 考试权重: ' + kp.examWeight + ' | 第' + kp.week + '周 第' + kp.day + '天</div>';
+    // Tabs
+    main += '<div class="kp-tabs">';
+    ['official:官方内容','explanation:通俗解读','case:案例学习','cards:知识卡片','tips:考试要点'].forEach(t => {
+        let [key, label] = t.split(':');
+        main += '<div class="kp-tab' + (selectedKPTab === key ? ' active' : '') + '" onclick="selectKPTab(\'' + key + '\')">' + label + '</div>';
+    });
+    main += '</div>';
+    // Content
+    if (selectedKPTab === 'official') {
+        main += '<div class="kp-content-section active"><div style="font-size:14px;line-height:1.8;color:var(--text2)">' + kp.officialContent + '</div>';
+        if (kp.relatedLinks && kp.relatedLinks.length > 0) {
+            main += '<div class="related-links mt-16"><strong>相关链接:</strong>';
+            kp.relatedLinks.forEach(l => { main += '<a href="' + l.url + '" target="_blank">' + l.text + '</a>'; });
+            main += '</div>';
+        }
+        main += '</div>';
+    } else if (selectedKPTab === 'explanation') {
+        main += '<div class="kp-content-section active"><div style="font-size:14px;line-height:1.8;color:var(--text2)">' + kp.explanation + '</div></div>';
+    } else if (selectedKPTab === 'case') {
+        main += '<div class="kp-content-section active"><div class="case-study"><h4 style="margin-bottom:8px;color:var(--warning)">' + kp.caseStudy.title + '</h4><div style="font-size:14px;line-height:1.8;color:var(--text2)">' + kp.caseStudy.content + '</div></div></div>';
+    } else if (selectedKPTab === 'cards') {
+        main += '<div class="kp-content-section active"><div class="key-cards">';
+        kp.keyCards.forEach(c => { main += '<div class="key-card"><div class="term">' + c.term + '</div><div class="def">' + c.definition + '</div></div>'; });
+        main += '</div></div>';
+    } else if (selectedKPTab === 'tips') {
+        main += '<div class="kp-content-section active"><div class="exam-tips-box"><div style="font-size:14px;line-height:1.8;color:#006644">' + kp.examTips + '</div></div></div>';
+    }
+    // Actions
+    main += '<div class="mt-24" style="border-top:1px solid var(--border);padding-top:16px">';
+    main += '<div class="flex gap-8 mb-16">';
+    main += '<button class="btn btn-sm ' + (note.marked ? 'btn-error' : 'btn-outline') + '" onclick="toggleMark(\'' + kp.id + '\')">' + (note.marked ? '已标记不懂' : '标记为不懂') + '</button>';
+    main += '<button class="btn btn-sm ' + (note.starred ? 'btn-warning' : 'btn-outline') + '" onclick="toggleStar(\'' + kp.id + '\')">' + (note.starred ? '已标重点' : '标记为重点') + '</button>';
+    main += '</div>';
+    main += '<div class="mb-8" style="font-size:13px;color:var(--text2)">我的笔记:</div>';
+    main += '<textarea id="noteArea" oninput="autoSaveNote(\'' + kp.id + '\')" placeholder="在这里写笔记...">' + (note.text || '') + '</textarea>';
+    // Quick verification questions
+    let tfQuestions = generateTFQuestions(kp);
+    if (tfQuestions.length > 0) {
+        main += '<div class="mt-16"><div style="font-size:14px;font-weight:600;margin-bottom:8px">快速自测:</div>';
+        tfQuestions.forEach((q, i) => {
+            main += '<div class="tf-question"><p>' + q.q + '</p><button class="btn btn-sm btn-primary tf-btn" onclick="checkTF(this,' + q.answer + ',' + i + ')">正确</button><button class="btn btn-sm btn-error tf-btn" onclick="checkTF(this,' + (1-q.answer) + ',' + i + ')">错误</button><span id="tf-result-' + i + '"></span></div>';
+        });
+        main += '</div>';
+    }
+    main += '<div class="mt-16"><button class="btn btn-success btn-lg" onclick="markStudied(\'' + kp.id + '\')">标记为已学</button></div>';
+    main += '</div>';
+
+    document.getElementById('view-learn').innerHTML = '<div class="learn-layout">' + sidebar + main + '</div>';
+}
+function selectKP(id) { selectedKP = id; selectedKPTab = 'official'; renderLearn(); }
+function selectKPTab(tab) { selectedKPTab = tab; renderLearn(); }
+function toggleMark(id) { let n = getNotes(); if (!n[id]) n[id] = {text:'',marked:false,starred:false,lastModified:todayStr()}; n[id].marked = !n[id].marked; saveNotes(n); renderLearn(); }
+function toggleStar(id) { let n = getNotes(); if (!n[id]) n[id] = {text:'',marked:false,starred:false,lastModified:todayStr()}; n[id].starred = !n[id].starred; saveNotes(n); renderLearn(); }
+function autoSaveNote(id) { let n = getNotes(); if (!n[id]) n[id] = {text:'',marked:false,starred:false,lastModified:todayStr()}; n[id].text = document.getElementById('noteArea').value; n[id].lastModified = todayStr(); saveNotes(n); }
+function markStudied(id) {
+    let prog = getProgress();
+    let today = todayStr();
+    if (!prog.days[today]) prog.days[today] = {completed:false,studyMinutes:0,topicsStudied:[],quizScore:0};
+    if (!prog.days[today].topicsStudied.includes(id)) prog.days[today].topicsStudied.push(id);
+    prog.days[today].studyMinutes += 15;
+    if (prog.lastStudyDate !== today) {
+        if (prog.lastStudyDate === addDays(today, -1)) prog.currentStreak++;
+        else prog.currentStreak = 1;
+        prog.longestStreak = Math.max(prog.longestStreak, prog.currentStreak);
+        prog.totalDaysStudied++;
+    }
+    prog.lastStudyDate = today;
+    saveProgress(prog);
+    let mastery = getMastery();
+    if (!mastery[id]) mastery[id] = {masteryLevel:1,masteryScore:0,totalAttempts:0,correctAttempts:0,lastReviewed:today,nextReview:addDays(today,1),history:[]};
+    saveMastery(mastery);
+    alert('已标记为已学!');
+    renderLearn();
+}
+function generateTFQuestions(kp) {
+    let questions = [];
+    let module = kp.module;
+    let topicQs = QB.filter(q => q.topic === kp.id && q.type === 'single');
+    topicQs.slice(0, 3).forEach(q => {
+        let correctIdx = q.correctAnswer;
+        let correctText = q.options[correctIdx].replace(/^[A-D]\.\s*/, '');
+        questions.push({q: q.question.substring(0, 60) + '... (判断: ' + correctText + ')', answer: 1});
+    });
+    if (questions.length === 0) {
+        questions.push({q: kp.title + '是FDE认证的重要知识点', answer: 1});
+        questions.push({q: kp.keyCards[0].term + '的定义是: ' + kp.keyCards[0].definition, answer: 1});
+    }
+    return questions.slice(0, 3);
+}
+function checkTF(btn, expected, idx) {
+    let result = document.getElementById('tf-result-' + idx);
+    if (expected === 1) { result.innerHTML = '<span style="color:var(--success);font-weight:600"> 正确!</span>'; }
+    else { result.innerHTML = '<span style="color:var(--error);font-weight:600"> 错误!</span>'; }
+}
+
+// ==================== QUIZ VIEW ====================
+let quizState = null;
+function renderQuiz() {
+    if (quizState && quizState.active) { renderQuizQuestion(); return; }
+    let todayTopics = getTodayTopics();
+    let dueTopics = getDueTopics();
+    let topicNames = todayTopics.map(tid => { let kp = KP.find(k => k.id === tid); return kp ? kp.id + ' ' + kp.title : tid; });
+    let html = '<div class="card quiz-setup">';
+    html += '<h2 style="margin-bottom:16px">每日测验</h2>';
+    html += '<div style="text-align:left;max-width:400px;margin:0 auto">';
+    html += '<div class="alert alert-info">今日学习主题: ' + (topicNames.length > 0 ? topicNames.join(', ') : '复习日') + '</div>';
+    if (dueTopics.length > 0) html += '<div class="alert alert-warning">待复习主题: ' + dueTopics.length + '个</div>';
+    html += '<div style="margin:16px 0;font-size:14px;color:var(--text2)">题目数量: 10题 | 题型: 单选+多选 | 时间: 不限时</div>';
+    html += '<div style="font-size:13px;color:var(--text3);margin-bottom:16px">题目来源: 50%今日主题 + 30%间隔复习 + 20%薄弱主题</div>';
+    html += '<button class="btn btn-primary btn-lg" onclick="startQuiz()">开始测验</button>';
+    html += '</div></div>';
+    // History
+    let qh = getQuizHistory();
+    let dailySessions = qh.sessions.filter(s => s.type === 'daily');
+    if (dailySessions.length > 0) {
+        html += '<div class="card"><div class="card-title">测验历史 (最近5次)</div>';
+        dailySessions.slice(-5).reverse().forEach(s => {
+            html += '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px"><span>' + s.date + '</span><span>得分: <strong>' + s.score + '%</strong></span><span>用时: ' + Math.round(s.duration/60) + '分钟</span></div>';
+        });
+        html += '</div>';
+    }
+    document.getElementById('view-quiz').innerHTML = html;
+}
+function startQuiz() {
+    let questions = selectQuizQuestions();
+    if (questions.length === 0) { alert('题库中暂无可用题目'); return; }
+    quizState = {active: true, questions: questions, current: 0, answers: [], startTime: Date.now(), submitted: false};
+    renderQuizQuestion();
+}
+function selectQuizQuestions() {
+    let todayTopics = getTodayTopics();
+    let dueTopics = getDueTopics();
+    let mastery = getMastery();
+    let weakTopics = KP.filter(k => mastery[k.id] && mastery[k.id].masteryScore < 60).map(k => k.id);
+    let selected = [];
+    // 50% from today's topics
+    let todayQs = QB.filter(q => todayTopics.includes(q.topic));
+    shuffleArray(todayQs);
+    selected.push(...todayQs.slice(0, 5));
+    // 30% from due topics
+    let dueQs = QB.filter(q => dueTopics.includes(q.topic) && !selected.find(s => s.id === q.id));
+    shuffleArray(dueQs);
+    selected.push(...dueQs.slice(0, 3));
+    // 20% from weak topics
+    let weakQs = QB.filter(q => weakTopics.includes(q.topic) && !selected.find(s => s.id === q.id));
+    shuffleArray(weakQs);
+    selected.push(...weakQs.slice(0, 2));
+    // Fill remaining from all
+    if (selected.length < 10) {
+        let remaining = QB.filter(q => !selected.find(s => s.id === q.id));
+        shuffleArray(remaining);
+        selected.push(...remaining.slice(0, 10 - selected.length));
+    }
+    return selected.slice(0, 10);
+}
+function shuffleArray(arr) { for (let i = arr.length - 1; i > 0; i--) { let j = Math.floor(Math.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } }
+function renderQuizQuestion() {
+    if (!quizState || !quizState.active) return;
+    let q = quizState.questions[quizState.current];
+    let total = quizState.questions.length;
+    let cur = quizState.current + 1;
+    let isMultiple = q.type === 'multiple';
+    let html = '<div class="card">';
+    html += '<div class="quiz-progress"><span style="font-size:13px;color:var(--text2)">' + cur + '/' + total + '</span><div class="qp-bar"><div class="qp-fill" style="width:' + (cur/total*100) + '%"></div></div>';
+    html += '<span class="badge ' + (isMultiple ? 'badge-warning' : 'badge-primary') + '">' + (isMultiple ? '多选' : '单选') + '</span></div>';
+    html += '<div class="quiz-question"><div class="q-text">' + cur + '. ' + q.question + '</div>';
+    let answered = quizState.answers[quizState.current];
+    let submitted = answered && answered.submitted;
+    q.options.forEach((opt, i) => {
+        let cls = 'quiz-option';
+        if (submitted) {
+            if (isMultiple) {
+                if (q.correctAnswer.includes(i)) cls += ' correct';
+                else if (answered.selected && answered.selected.includes(i)) cls += ' wrong';
+            } else {
+                if (i === q.correctAnswer) cls += ' correct';
+                else if (i === answered.selected) cls += ' wrong';
+            }
+        } else {
+            if (isMultiple) { if (answered && answered.selected && answered.selected.includes(i)) cls += ' selected'; }
+            else { if (answered && answered.selected === i) cls += ' selected'; }
+        }
+        html += '<div class="' + cls + '" onclick="selectQuizOption(' + i + ',' + isMultiple + ')">' + opt + '</div>';
+    });
+    if (submitted) {
+        let isCorrect = isMultiple ? arraysEqual(answered.selected.sort(), q.correctAnswer.slice().sort()) : answered.selected === q.correctAnswer;
+        html += '<div class="quiz-explanation"><strong>' + (isCorrect ? '回答正确!' : '回答错误') + '</strong><br>' + q.explanation + '</div>';
+        html += '<div class="mt-16 flex gap-8"><button class="btn btn-primary" onclick="nextQuizQuestion()">' + (cur < total ? '下一题' : '查看结果') + '</button></div>';
+    } else {
+        html += '<div class="mt-16"><button class="btn btn-primary" onclick="submitQuizAnswer()">提交答案</button></div>';
+    }
+    html += '</div></div>';
+    document.getElementById('view-quiz').innerHTML = html;
+}
+function arraysEqual(a, b) { if (a.length !== b.length) return false; for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return false; return true; }
+function selectQuizOption(idx, isMultiple) {
+    if (!quizState) return;
+    let answered = quizState.answers[quizState.current];
+    if (answered && answered.submitted) return;
+    if (!quizState.answers[quizState.current]) quizState.answers[quizState.current] = {selected: isMultiple ? [] : null, submitted: false};
+    let a = quizState.answers[quizState.current];
+    if (isMultiple) {
+        if (!a.selected) a.selected = [];
+        let i = a.selected.indexOf(idx);
+        if (i >= 0) a.selected.splice(i, 1); else a.selected.push(idx);
+    } else {
+        a.selected = idx;
+    }
+    renderQuizQuestion();
+}
+function submitQuizAnswer() {
+    let a = quizState.answers[quizState.current];
+    if (!a || (a.selected === null || (Array.isArray(a.selected) && a.selected.length === 0))) { alert('请选择答案'); return; }
+    a.submitted = true;
+    let q = quizState.questions[quizState.current];
+    let isCorrect = q.type === 'multiple' ? arraysEqual(a.selected.sort(), q.correctAnswer.slice().sort()) : a.selected === q.correctAnswer;
+    // Update mastery
+    updateMastery(q.topic, isCorrect ? 100 : 0);
+    renderQuizQuestion();
+}
+function nextQuizQuestion() {
+    if (quizState.current < quizState.questions.length - 1) {
+        quizState.current++;
+        renderQuizQuestion();
+    } else {
+        finishQuiz();
+    }
+}
+function finishQuiz() {
+    let correct = 0;
+    quizState.questions.forEach((q, i) => {
+        let a = quizState.answers[i];
+        if (!a) return;
+        if (q.type === 'multiple') { if (arraysEqual(a.selected.sort(), q.correctAnswer.slice().sort())) correct++; }
+        else { if (a.selected === q.correctAnswer) correct++; }
+    });
+    let score = Math.round((correct / quizState.questions.length) * 100);
+    let duration = Math.round((Date.now() - quizState.startTime) / 1000);
+    // Save to history
+    let qh = getQuizHistory();
+    qh.sessions.push({id: 'q' + Date.now(), date: todayStr(), questions: quizState.questions.map(q=>q.id), answers: quizState.answers, correct: correct, score: score, duration: duration, type: 'daily'});
+    saveQuizHistory(qh);
+    // Update progress
+    let prog = getProgress();
+    let today = todayStr();
+    if (!prog.days[today]) prog.days[today] = {completed:false,studyMinutes:0,topicsStudied:[],quizScore:0};
+    prog.days[today].quizScore = score;
+    prog.days[today].completed = true;
+    prog.days[today].studyMinutes += Math.round(duration / 60);
+    saveProgress(prog);
+    // Show result
+    quizState.active = false;
+    let html = '<div class="card quiz-result">';
+    html += '<div class="score">' + score + '分</div>';
+    html += '<div style="font-size:16px;color:var(--text2);margin:8px 0">答对 ' + correct + '/' + quizState.questions.length + ' 题</div>';
+    html += '<div style="font-size:14px;color:var(--text3)">用时: ' + Math.round(duration/60) + ' 分钟</div>';
+    // Per-topic breakdown
+    let topicResults = {};
+    quizState.questions.forEach((q, i) => {
+        let a = quizState.answers[i];
+        if (!topicResults[q.topic]) topicResults[q.topic] = {correct:0, total:0};
+        topicResults[q.topic].total++;
+        let isC = q.type === 'multiple' ? arraysEqual(a.selected.sort(), q.correctAnswer.slice().sort()) : a.selected === q.correctAnswer;
+        if (isC) topicResults[q.topic].correct++;
+    });
+    html += '<div style="text-align:left;max-width:400px;margin:16px auto"><div class="card-title">各主题表现</div>';
+    for (let tid in topicResults) {
+        let r = topicResults[tid];
+        let pct = Math.round(r.correct / r.total * 100);
+        let kp = KP.find(k => k.id === tid);
+        html += '<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:13px"><span>' + (kp ? kp.id + ' ' + kp.title : tid) + '</span><span style="color:' + (pct >= 80 ? 'var(--success)' : 'var(--error)') + '">' + r.correct + '/' + r.total + '</span></div>';
+    }
+    html += '</div>';
+    html += '<div class="mt-16 flex gap-8" style="justify-content:center"><button class="btn btn-primary" onclick="quizState=null;renderQuiz()">返回</button><button class="btn btn-outline" onclick="quizState=null;switchView(\'learn\')">去复习</button></div>';
+    html += '</div>';
+    document.getElementById('view-quiz').innerHTML = html;
+}
+
+// ==================== MOCK EXAM VIEW ====================
+let examState = null;
+let examTimer = null;
+function renderExam() {
+    if (examState && examState.active) { renderExamQuestion(); return; }
+    let qh = getQuizHistory();
+    let mockSessions = qh.sessions.filter(s => s.type === 'mock');
+    let html = '<div class="card quiz-setup">';
+    html += '<h2 style="margin-bottom:16px">模拟考试</h2>';
+    html += '<div style="max-width:500px;margin:0 auto;text-align:left">';
+    html += '<div class="alert alert-info"><strong>考试说明:</strong><br>题目数量: 60题 | 时间: 90分钟 | 题型: 单选+多选<br>覆盖全部7个模块 | 及格线: 60分</div>';
+    html += '<div style="margin:16px 0;font-size:14px;color:var(--text2)">考试将模拟真实考试环境，包含倒计时和题目导航面板。建议在网络稳定的环境中进行。</div>';
+    html += '<button class="btn btn-primary btn-lg" onclick="startExam()">开始模拟考试</button>';
+    if (mockSessions.length > 0) {
+        html += '<div class="mt-24"><div class="card-title">模拟考试历史</div>';
+        mockSessions.slice(-3).reverse().forEach(s => {
+            html += '<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px"><span>' + s.date + '</span><span>得分: <strong style="color:' + (s.score >= 60 ? 'var(--success)' : 'var(--error)') + '">' + s.score + '分</strong></span><span>' + (s.score >= 60 ? '通过' : '未通过') + '</span></div>';
+        });
+        html += '</div>';
+    }
+    html += '</div></div>';
+    document.getElementById('view-exam').innerHTML = html;
+}
+function startExam() {
+    if (!confirm('确定开始模拟考试？考试时间90分钟，共60题。')) return;
+    let questions = selectExamQuestions();
+    examState = {active: true, questions: questions, answers: new Array(60).fill(null), flags: new Array(60).fill(false), current: 0, startTime: Date.now(), duration: 90*60*1000};
+    examTimer = setInterval(examTick, 1000);
+    renderExamQuestion();
+}
+function selectExamQuestions() {
+    let selected = [];
+    let moduleCounts = {1:8, 2:12, 3:10, 4:14, 5:8, 6:4, 7:4}; // total 60
+    for (let mod in moduleCounts) {
+        let modQs = QB.filter(q => q.module === parseInt(mod));
+        shuffleArray(modQs);
+        selected.push(...modQs.slice(0, moduleCounts[mod]));
+    }
+    shuffleArray(selected);
+    return selected.slice(0, 60);
+}
+function examTick() {
+    if (!examState || !examState.active) return;
+    let elapsed = Date.now() - examState.startTime;
+    let remaining = examState.duration - elapsed;
+    if (remaining <= 0) { finishExam(); return; }
+    let timerEl = document.getElementById('examTimerDisplay');
+    if (timerEl) {
+        let min = Math.floor(remaining / 60000);
+        let sec = Math.floor((remaining % 60000) / 1000);
+        timerEl.textContent = min + ':' + (sec < 10 ? '0' : '') + sec;
+        if (remaining < 300000) timerEl.parentElement.classList.add('warning');
+    }
+}
+function renderExamQuestion() {
+    if (!examState || !examState.active) return;
+    let q = examState.questions[examState.current];
+    let isMultiple = q.type === 'multiple';
+    let elapsed = Date.now() - examState.startTime;
+    let remaining = examState.duration - elapsed;
+    let min = Math.floor(remaining / 60000);
+    let sec = Math.floor((remaining % 60000) / 1000);
+    let html = '<div class="exam-layout"><div>';
+    html += '<div class="card"><div class="exam-timer" id="examTimerDisplay">' + min + ':' + (sec < 10 ? '0' : '') + sec + '</div>';
+    html += '<div class="flex-between mb-16"><span style="font-size:13px;color:var(--text2)">第 ' + (examState.current+1) + '/60 题</span>';
+    html += '<button class="flag-btn ' + (examState.flags[examState.current] ? 'flagged' : '') + '" onclick="toggleFlag(' + examState.current + ')">' + (examState.flags[examState.current] ? '已标记' : '标记') + '</button></div>';
+    html += '<div class="q-text" style="font-size:15px;margin-bottom:16px">' + (examState.current+1) + '. ' + q.question + '</div>';
+    let ans = examState.answers[examState.current];
+    q.options.forEach((opt, i) => {
+        let cls = 'quiz-option';
+        if (isMultiple) { if (ans && ans.includes(i)) cls += ' selected'; }
+        else { if (ans === i) cls += ' selected'; }
+        html += '<div class="' + cls + '" onclick="selectExamOption(' + i + ',' + isMultiple + ')">' + opt + '</div>';
+    });
+    html += '<div class="mt-16 flex gap-8">';
+    if (examState.current > 0) html += '<button class="btn btn-outline" onclick="examState.current--;renderExamQuestion()">上一题</button>';
+    if (examState.current < 59) html += '<button class="btn btn-primary" onclick="examState.current++;renderExamQuestion()">下一题</button>';
+    else html += '<button class="btn btn-success" onclick="finishExam()">交卷</button>';
+    html += '</div></div></div>';
+    // Navigation panel
+    html += '<div class="exam-nav-panel"><div style="font-size:13px;color:var(--text2);margin-bottom:8px">题目导航</div><div>';
+    for (let i = 0; i < 60; i++) {
+        let cls = 'q-num';
+        if (i === examState.current) cls += ' current';
+        else if (examState.flags[i]) cls += ' flagged';
+        else if (examState.answers[i] !== null) cls += ' answered';
+        html += '<span class="' + cls + '" onclick="examState.current=' + i + ';renderExamQuestion()">' + (i+1) + '</span>';
+    }
+    let answeredCount = examState.answers.filter(a => a !== null).length;
+    html += '</div><div style="margin-top:12px;font-size:12px;color:var(--text3)">已答: ' + answeredCount + '/60</div>';
+    html += '<button class="btn btn-success btn-sm mt-8" onclick="finishExam()" style="width:100%">交卷</button>';
+    html += '</div></div>';
+    document.getElementById('view-exam').innerHTML = html;
+}
+function selectExamOption(idx, isMultiple) {
+    if (!examState) return;
+    let cur = examState.current;
+    if (isMultiple) {
+        if (!examState.answers[cur]) examState.answers[cur] = [];
+        let i = examState.answers[cur].indexOf(idx);
+        if (i >= 0) examState.answers[cur].splice(i, 1); else examState.answers[cur].push(idx);
+        if (examState.answers[cur].length === 0) examState.answers[cur] = null;
+    } else {
+        examState.answers[cur] = idx;
+    }
+    renderExamQuestion();
+}
+function toggleFlag(idx) { examState.flags[idx] = !examState.flags[idx]; renderExamQuestion(); }
+function finishExam() {
+    if (!confirm('确定交卷？')) return;
+    clearInterval(examTimer);
+    let correct = 0;
+    let moduleCorrect = {};
+    examState.questions.forEach((q, i) => {
+        let a = examState.answers[i];
+        if (!moduleCorrect[q.module]) moduleCorrect[q.module] = {correct:0, total:0};
+        moduleCorrect[q.module].total++;
+        let isC = false;
+        if (q.type === 'multiple') { isC = a && Array.isArray(a) && arraysEqual(a.sort(), q.correctAnswer.slice().sort()); }
+        else { isC = a === q.correctAnswer; }
+        if (isC) { correct++; moduleCorrect[q.module].correct++; }
+    });
+    let score = Math.round((correct / 60) * 100);
+    let duration = Math.round((Date.now() - examState.startTime) / 1000);
+    // Save
+    let qh = getQuizHistory();
+    qh.sessions.push({id:'m'+Date.now(), date:todayStr(), questions:examState.questions.map(q=>q.id), answers:examState.answers, correct:correct, score:score, duration:duration, type:'mock'});
+    saveQuizHistory(qh);
+    // Update mastery for all topics
+    examState.questions.forEach((q, i) => {
+        let a = examState.answers[i];
+        let isC = q.type === 'multiple' ? (a && Array.isArray(a) && arraysEqual(a.sort(), q.correctAnswer.slice().sort())) : a === q.correctAnswer;
+        updateMastery(q.topic, isC ? 100 : 0);
+    });
+    examState.active = false;
+    // Show results
+    let html = '<div class="card quiz-result">';
+    html += '<div class="score" style="color:' + (score >= 60 ? 'var(--success)' : 'var(--error)') + '">' + score + '分</div>';
+    html += '<div style="font-size:18px;margin:8px 0">' + (score >= 60 ? '恭喜通过!' : '未通过，继续加油!') + '</div>';
+    html += '<div style="font-size:14px;color:var(--text2)">答对 ' + correct + '/60 题 | 用时: ' + Math.round(duration/60) + ' 分钟</div>';
+    // Module breakdown
+    html += '<div style="text-align:left;max-width:500px;margin:20px auto"><div class="card-title">各模块得分</div>';
+    for (let mod = 1; mod <= 7; mod++) {
+        let mc = moduleCorrect[mod] || {correct:0, total:0};
+        let pct = mc.total > 0 ? Math.round(mc.correct / mc.total * 100) : 0;
+        html += '<div class="module-bar"><div class="bar-label">' + MODULE_NAMES[mod] + '</div><div class="bar-bg"><div class="bar-fill" style="width:' + pct + '%;background:' + MODULE_COLORS[mod-1] + '">' + (pct > 15 ? pct + '%' : '') + '</div></div><div class="bar-pct">' + mc.correct + '/' + mc.total + '</div></div>';
+    }
+    html += '</div>';
+    // Wrong answers review
+    html += '<div style="text-align:left;max-width:600px;margin:16px auto"><div class="card-title">错题回顾</div>';
+    examState.questions.forEach((q, i) => {
+        let a = examState.answers[i];
+        let isC = q.type === 'multiple' ? (a && Array.isArray(a) && arraysEqual(a.sort(), q.correctAnswer.slice().sort())) : a === q.correctAnswer;
+        if (!isC) {
+            html += '<div style="padding:12px;margin-bottom:8px;background:var(--error-light);border-radius:6px;font-size:13px">';
+            html += '<strong>第' + (i+1) + '题:</strong> ' + q.question + '<br>';
+            html += '<span style="color:var(--error)">你的答案: ' + (a !== null ? (Array.isArray(a) ? a.map(x=>q.options[x]).join(', ') : q.options[a]) : '未作答') + '</span><br>';
+            html += '<span style="color:var(--success)">正确答案: ' + q.correctAnswer.map(x=>q.options[x]).join(', ') + '</span><br>';
+            html += '<span style="color:var(--text3)">' + q.explanation + '</span>';
+            html += '</div>';
+        }
+    });
+    html += '</div>';
+    html += '<button class="btn btn-primary mt-16" onclick="examState=null;renderExam()">返回</button>';
+    html += '</div>';
+    document.getElementById('view-exam').innerHTML = html;
+}
+
+// ==================== CALENDAR VIEW ====================
+let calYear = 2026, calMonth = 9; // October = 9 (0-indexed)
+function renderCalendar() {
+    let prog = getProgress();
+    let today = todayStr();
+    let firstDay = new Date(calYear, calMonth, 1).getDay();
+    let daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+    let monthNames = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+    let html = '<div class="card">';
+    html += '<div class="flex-between mb-16"><button class="btn btn-sm btn-outline" onclick="calMonth--;if(calMonth<0){calMonth=11;calYear--}renderCalendar()">上月</button><h3>' + calYear + '年' + monthNames[calMonth] + '</h3><button class="btn btn-sm btn-outline" onclick="calMonth++;if(calMonth>11){calMonth=0;calYear++}renderCalendar()">下月</button></div>';
+    html += '<div class="calendar-header"><span>日</span><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span></div>';
+    html += '<div class="calendar-grid">';
+    for (let i = 0; i < firstDay; i++) html += '<div class="cal-cell empty"></div>';
+    for (let d = 1; d <= daysInMonth; d++) {
+        let dateStr = calYear + '-' + (calMonth+1 < 10 ? '0' : '') + (calMonth+1) + '-' + (d < 10 ? '0' : '') + d;
+        let dayData = prog.days[dateStr];
+        let cls = 'cal-cell';
+        if (dateStr === today) cls += ' today';
+        if (dayData) {
+            if (dayData.missed) cls += ' missed';
+            else if (dayData.quizScore >= 80) cls += ' good';
+            else if (dayData.completed) cls += ' ok';
+            else cls += ' review';
+        } else if (dateStr > today) {
+            cls += ' future';
+        }
+        let onclick = dayData || dateStr >= START_DATE ? ' onclick="showCalDay(\'' + dateStr + '\')"' : '';
+        html += '<div class="' + cls + '"' + onclick + '>' + d + '</div>';
+    }
+    html += '</div>';
+    // Legend
+    html += '<div class="mt-16 flex gap-16" style="flex-wrap:wrap;font-size:12px;color:var(--text3)">';
+    html += '<span><span style="display:inline-block;width:12px;height:12px;border-radius:2px;background:#00A870;vertical-align:middle"></span> 完成(>=80分)</span>';
+    html += '<span><span style="display:inline-block;width:12px;height:12px;border-radius:2px;background:#52C41A;vertical-align:middle"></span> 完成(<80分)</span>';
+    html += '<span><span style="display:inline-block;width:12px;height:12px;border-radius:2px;background:#E34D59;vertical-align:middle"></span> 缺勤</span>';
+    html += '<span><span style="display:inline-block;width:12px;height:12px;border-radius:2px;background:#0052D9;vertical-align:middle"></span> 复习日</span>';
+    html += '<span><span style="display:inline-block;width:12px;height:12px;border-radius:2px;background:#E5E6EB;vertical-align:middle"></span> 未来</span>';
+    html += '</div></div>';
+    document.getElementById('view-calendar').innerHTML = html;
+}
+function showCalDay(dateStr) {
+    let prog = getProgress();
+    let dayData = prog.days[dateStr];
+    let html = '<button class="modal-close" onclick="closeModal()">&times;</button>';
+    html += '<div class="modal-title">' + dateStr + ' 学习详情</div>';
+    if (dayData) {
+        if (dayData.missed) {
+            html += '<div class="alert alert-error">该日缺勤</div>';
+        } else {
+            html += '<div class="alert ' + (dayData.completed ? 'alert-success' : 'alert-info') + '">' + (dayData.completed ? '已完成学习' : '部分完成') + '</div>';
+            html += '<div style="font-size:14px">';
+            html += '<p>学习时长: ' + (dayData.studyMinutes || 0) + ' 分钟</p>';
+            if (dayData.quizScore) html += '<p>测验得分: ' + dayData.quizScore + '%</p>';
+            if (dayData.topicsStudied && dayData.topicsStudied.length > 0) {
+                html += '<p>学习知识点:</p><ul style="padding-left:20px">';
+                dayData.topicsStudied.forEach(tid => {
+                    let kp = KP.find(k => k.id === tid);
+                    html += '<li>' + (kp ? kp.id + ' ' + kp.title : tid) + '</li>';
+                });
+                html += '</ul>';
+            }
+            html += '</div>';
+        }
+    } else {
+        let inPlan = dateStr >= START_DATE && dateStr <= EXAM_DATE;
+        html += '<div class="alert ' + (inPlan ? 'alert-info' : 'alert-warning') + '">' + (inPlan ? '计划学习日，暂无记录' : '非学习计划期间') + '</div>';
+    }
+    showModal(html);
+}
+function showModal(content) {
+    document.getElementById('modalContent').innerHTML = content;
+    document.getElementById('modalOverlay').classList.add('show');
+}
+function closeModal() { document.getElementById('modalOverlay').classList.remove('show'); }
+document.getElementById('modalOverlay').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
+
+// ==================== STATS VIEW ====================
+function renderStats() {
+    let prog = getProgress();
+    let mastery = getMastery();
+    let qh = getQuizHistory();
+    let today = todayStr();
+    // Overall stats
+    let totalQ = qh.sessions.reduce((s, sess) => s + (sess.correct || 0), 0);
+    let totalAttempts = qh.sessions.reduce((s, sess) => {
+        if (sess.questions) return s + sess.questions.length;
+        return s;
+    }, 0);
+    let accuracy = totalAttempts > 0 ? Math.round(totalQ / totalAttempts * 100) : 0;
+    // Module mastery for radar
+    let moduleMastery = [];
+    for (let i = 1; i <= 7; i++) {
+        let kps = KP.filter(k => k.module === i);
+        let scores = kps.map(k => mastery[k.id] ? mastery[k.id].masteryScore : 0);
+        moduleMastery.push(scores.length > 0 ? Math.round(scores.reduce((a,b)=>a+b,0) / scores.length) : 0);
+    }
+    // Weakest topics
+    let topicScores = KP.map(kp => ({id: kp.id, title: kp.title, score: mastery[kp.id] ? mastery[kp.id].masteryScore : 0}));
+    topicScores.sort((a, b) => a.score - b.score);
+    let weakest = topicScores.slice(0, 10);
+
+    let html = '<div class="grid-4 mb-16">';
+    html += '<div class="card stat-card"><div class="stat-value">' + qh.sessions.length + '</div><div class="stat-label">总测验次数</div></div>';
+    html += '<div class="card stat-card success"><div class="stat-value">' + totalQ + '</div><div class="stat-label">总答对题数</div></div>';
+    html += '<div class="card stat-card warning"><div class="stat-value">' + accuracy + '%</div><div class="stat-label">正确率</div></div>';
+    html += '<div class="card stat-card"><div class="stat-value">' + prog.totalDaysStudied + '</div><div class="stat-label">累计学习天数</div></div>';
+    html += '</div>';
+    // Charts
+    html += '<div class="grid-2">';
+    html += '<div class="card"><div class="card-title">得分趋势 (近14天)</div><div class="chart-container"><canvas id="scoreTrendChart" height="200"></canvas></div></div>';
+    html += '<div class="card"><div class="card-title">模块掌握度雷达图</div><div class="chart-container"><canvas id="radarChart" height="200"></canvas></div></div>';
+    html += '</div>';
+    // Knowledge heatmap
+    html += '<div class="card"><div class="card-title">知识点掌握热力图</div><div id="knowledgeHeatmap" style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px"></div></div>';
+    // Study time distribution
+    html += '<div class="grid-2">';
+    html += '<div class="card"><div class="card-title">学习时间分布 (按模块)</div><div class="chart-container"><canvas id="timeDistChart" height="200"></canvas></div></div>';
+    html += '<div class="card"><div class="card-title">考试准备度仪表盘</div><div class="chart-container"><canvas id="gaugeChart" height="200"></canvas></div></div>';
+    html += '</div>';
+    // Weakest topics
+    html += '<div class="card"><div class="card-title">最薄弱的10个知识点</div><ul class="weakness-list">';
+    weakest.forEach((t, i) => {
+        html += '<li><span>' + (i+1) + '. ' + t.id + ' ' + t.title + '</span><span class="badge ' + (t.score < 30 ? 'badge-error' : t.score < 60 ? 'badge-warning' : 'badge-success') + '">' + t.score + '%</span></li>';
+    });
+    html += '</ul></div>';
+
+    document.getElementById('view-stats').innerHTML = html;
+    // Draw charts
+    setTimeout(() => {
+        drawScoreTrendChart();
+        drawRadarChart(moduleMastery);
+        drawHeatmap();
+        drawTimeDistChart();
+        drawGaugeChart();
+    }, 100);
+}
+function drawScoreTrendChart() {
+    let canvas = document.getElementById('scoreTrendChart');
+    if (!canvas) return;
+    let ctx = canvas.getContext('2d');
+    let w = canvas.parentElement.clientWidth;
+    canvas.width = w; canvas.height = 200;
+    let qh = getQuizHistory();
+    let today = todayStr();
+    let data = [];
+    for (let i = 13; i >= 0; i--) {
+        let d = addDays(today, -i);
+        let sessions = qh.sessions.filter(s => s.date === d);
+        let avg = sessions.length > 0 ? Math.round(sessions.reduce((s, sess) => s + sess.score, 0) / sessions.length) : null;
+        data.push({date: d, score: avg});
+    }
+    let pad = 40, gw = w - pad*2, gh = 140;
+    ctx.clearRect(0, 0, w, 200);
+    // Grid
+    ctx.strokeStyle = '#E5E6EB'; ctx.lineWidth = 0.5;
+    for (let i = 0; i <= 4; i++) { let y = pad + gh - (gh*i/4); ctx.beginPath(); ctx.moveTo(pad, y); ctx.lineTo(w-pad, y); ctx.stroke(); ctx.fillStyle='#86909C'; ctx.font='10px sans-serif'; ctx.textAlign='right'; ctx.fillText((i*25)+'', pad-5, y+3); }
+    let validPts = data.filter(d => d.score !== null);
+    if (validPts.length === 0) { ctx.fillStyle='#86909C'; ctx.font='13px sans-serif'; ctx.textAlign='center'; ctx.fillText('暂无数据', w/2, 100); return; }
+    // Line
+    ctx.strokeStyle = '#0052D9'; ctx.lineWidth = 2; ctx.beginPath();
+    let started = false;
+    data.forEach((d, i) => {
+        if (d.score !== null) {
+            let x = pad + (gw * i / 13);
+            let y = pad + gh - (gh * d.score / 100);
+            if (!started) { ctx.moveTo(x, y); started = true; } else ctx.lineTo(x, y);
+        }
+    });
+    ctx.stroke();
+    // Points
+    data.forEach((d, i) => {
+        if (d.score !== null) {
+            let x = pad + (gw * i / 13);
+            let y = pad + gh - (gh * d.score / 100);
+            ctx.fillStyle = d.score >= 80 ? '#00A870' : d.score >= 60 ? '#FAAD14' : '#E34D59';
+            ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = '#1D2129'; ctx.font = '9px sans-serif'; ctx.textAlign = 'center';
+            ctx.fillText(d.score+'', x, y-10);
+        }
+    });
+}
+function drawRadarChart(values) {
+    let canvas = document.getElementById('radarChart');
+    if (!canvas) return;
+    let ctx = canvas.getContext('2d');
+    let w = canvas.parentElement.clientWidth;
+    canvas.width = w; canvas.height = 200;
+    let cx = w/2, cy = 100, r = 70;
+    let n = 7;
+    ctx.clearRect(0, 0, w, 200);
+    // Grid
+    for (let level = 1; level <= 4; level++) {
+        ctx.strokeStyle = '#E5E6EB'; ctx.lineWidth = 0.5; ctx.beginPath();
+        for (let i = 0; i <= n; i++) {
+            let angle = (Math.PI * 2 * i / n) - Math.PI / 2;
+            let x = cx + Math.cos(angle) * r * level / 4;
+            let y = cy + Math.sin(angle) * r * level / 4;
+            i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+    }
+    // Axes
+    for (let i = 0; i < n; i++) {
+        let angle = (Math.PI * 2 * i / n) - Math.PI / 2;
+        ctx.strokeStyle = '#E5E6EB'; ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.lineTo(cx + Math.cos(angle) * r, cy + Math.sin(angle) * r);
+        ctx.stroke();
+        // Labels
+        let lx = cx + Math.cos(angle) * (r + 15);
+        let ly = cy + Math.sin(angle) * (r + 15);
+        ctx.fillStyle = '#4E5969'; ctx.font = '10px sans-serif'; ctx.textAlign = 'center';
+        ctx.fillText(MODULE_NAMES[i+1].substring(0, 4), lx, ly + 3);
+    }
+    // Data
+    ctx.fillStyle = 'rgba(0,82,217,0.2)'; ctx.strokeStyle = '#0052D9'; ctx.lineWidth = 2; ctx.beginPath();
+    for (let i = 0; i <= n; i++) {
+        let idx = i % n;
+        let angle = (Math.PI * 2 * idx / n) - Math.PI / 2;
+        let val = values[idx] / 100;
+        let x = cx + Math.cos(angle) * r * val;
+        let y = cy + Math.sin(angle) * r * val;
+        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.fill(); ctx.stroke();
+    // Points
+    for (let i = 0; i < n; i++) {
+        let angle = (Math.PI * 2 * i / n) - Math.PI / 2;
+        let val = values[i] / 100;
+        let x = cx + Math.cos(angle) * r * val;
+        let y = cy + Math.sin(angle) * r * val;
+        ctx.fillStyle = '#0052D9'; ctx.beginPath(); ctx.arc(x, y, 3, 0, Math.PI*2); ctx.fill();
+    }
+}
+function drawHeatmap() {
+    let container = document.getElementById('knowledgeHeatmap');
+    if (!container) return;
+    let mastery = getMastery();
+    let html = '';
+    KP.forEach(kp => {
+        let m = mastery[kp.id];
+        let score = m ? m.masteryScore : 0;
+        let level = m ? m.masteryLevel : 0;
+        let bg;
+        if (level === 0) bg = '#E5E6EB';
+        else if (level === 1) bg = '#FDE8EA';
+        else if (level === 2) bg = '#FFF7E6';
+        else if (level === 3) bg = '#E8F8F0';
+        else if (level === 4) bg = '#52C41A';
+        else bg = '#00A870';
+        let color = level >= 4 ? '#fff' : '#1D2129';
+        html += '<div style="background:' + bg + ';color:' + color + ';padding:6px 4px;border-radius:4px;text-align:center;font-size:10px;cursor:pointer;min-height:40px;display:flex;align-items:center;justify-content:center" title="' + kp.title + ' (' + score + '%)" onclick="selectedKP=\'' + kp.id + '\';switchView(\'learn\')">' + kp.id + '</div>';
+    });
+    container.innerHTML = html;
+}
+function drawTimeDistChart() {
+    let canvas = document.getElementById('timeDistChart');
+    if (!canvas) return;
+    let ctx = canvas.getContext('2d');
+    let w = canvas.parentElement.clientWidth;
+    canvas.width = w; canvas.height = 200;
+    let prog = getProgress();
+    let moduleTime = [0,0,0,0,0,0,0,0];
+    for (let date in prog.days) {
+        let d = prog.days[date];
+        if (d.topicsStudied) {
+            d.topicsStudied.forEach(tid => {
+                let kp = KP.find(k => k.id === tid);
+                if (kp) moduleTime[kp.module] += (d.studyMinutes || 15) / d.topicsStudied.length;
+            });
+        }
+    }
+    let total = moduleTime.reduce((a,b) => a+b, 0) || 1;
+    ctx.clearRect(0, 0, w, 200);
+    let pad = 40, barW = (w - pad*2) / 7 - 8;
+    for (let i = 1; i <= 7; i++) {
+        let x = pad + (i-1) * ((w-pad*2)/7) + 4;
+        let h = (moduleTime[i] / total) * 130;
+        let y = 170 - h;
+        ctx.fillStyle = MODULE_COLORS[i-1];
+        ctx.fillRect(x, y, barW, h);
+        ctx.fillStyle = '#4E5969'; ctx.font = '9px sans-serif'; ctx.textAlign = 'center';
+        ctx.fillText(MODULE_NAMES[i].substring(0,4), x + barW/2, 185);
+        if (h > 15) { ctx.fillStyle = '#fff'; ctx.fillText(Math.round(moduleTime[i]) + '分', x + barW/2, y + 12); }
+    }
+}
+function drawGaugeChart() {
+    let canvas = document.getElementById('gaugeChart');
+    if (!canvas) return;
+    let ctx = canvas.getContext('2d');
+    let w = canvas.parentElement.clientWidth;
+    canvas.width = w; canvas.height = 200;
+    let mastery = getMastery();
+    let totalKP = KP.length;
+    let studiedKP = Object.keys(mastery).filter(k => mastery[k].totalAttempts > 0).length;
+    let overallPct = Math.round((studiedKP / totalKP) * 100);
+    let avgMastery = Object.values(mastery).length > 0 ? Math.round(Object.values(mastery).reduce((s,m) => s + m.masteryScore, 0) / Object.values(mastery).length) : 0;
+    let readiness = Math.round((overallPct + avgMastery) / 2);
+    let cx = w/2, cy = 130, r = 80;
+    ctx.clearRect(0, 0, w, 200);
+    // Background arc
+    ctx.strokeStyle = '#E5E6EB'; ctx.lineWidth = 12; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.arc(cx, cy, r, Math.PI, 0); ctx.stroke();
+    // Value arc
+    let angle = Math.PI + (Math.PI * readiness / 100);
+    ctx.strokeStyle = readiness >= 80 ? '#00A870' : readiness >= 60 ? '#FAAD14' : '#E34D59';
+    ctx.lineWidth = 12; ctx.beginPath(); ctx.arc(cx, cy, r, Math.PI, angle); ctx.stroke();
+    // Text
+    ctx.fillStyle = '#1D2129'; ctx.font = 'bold 28px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText(readiness + '', cx, cy - 10);
+    ctx.fillStyle = '#86909C'; ctx.font = '12px sans-serif';
+    ctx.fillText('准备度', cx, cy + 10);
+    ctx.fillText('通过率: ' + Math.min(99, Math.round(readiness * 1.1)) + '%', cx, cy + 28);
+}
+
+// ==================== RESOURCE CENTER ====================
+const RESOURCES = [
+    {id:'fde-guide',title:'FDE前沿部署工程师指南',category:'官方认证',type:'external',url:'https://adp.tencent.com/zh/blog/adp-fde-certification-guide',description:'腾讯云ADP FDE认证官方指南，包含考试说明、知识框架和备考建议。',content:'<h3>认证概述</h3><p>腾讯云ADP前沿部署工程师（FDE）认证是面向AI时代技术人员的专业技术认证。FDE概念源自Palantir，指驻扎在客户现场、兼具工程能力与业务理解力的技术角色。</p><h3>考试信息</h3><ul><li>考试形式：Prometric线下闭卷机考</li><li>题目数量：60题（40单选+20多选）</li><li>考试时长：90分钟</li><li>合格标准：100分满分，70分合格</li><li>考试费用：1200元</li><li>证书有效期：2年</li></ul><h3>知识模块</h3><ol><li>AI与生成式AI基础（10-15%）</li><li>ADP核心功能与应用搭建（18-22%）</li><li>智能体开发（15-18%）</li><li>场景理解与方案设计（20-25%）</li><li>交付实施·评测与运维（10-15%）</li><li>安全合规与责任AI（贯穿各模块）</li><li>云原生与部署基础（8-12%）</li></ol><h3>备考建议</h3><p>建议按照本系统的10周学习计划循序渐进，重点掌握场景理解与方案设计模块（权重最高），同时注意间隔重复巩固已学知识。</p>'},
+    {id:'fde-cert-guide',title:'FDE认证考试全解析',category:'官方认证',type:'external',url:'https://bbs.csdn.net/weixin_31714129/article/details/100367401',description:'详细的FDE认证考试解析，包含题型分析、重点难点和应试技巧。',content:'<h3>考试题型分析</h3><p>FDE认证考试分为单选题和多选题两种题型。单选题40道，每题1.5分；多选题20道，每题2分。多选题需要全部选对才得分，漏选或多选均不得分。</p><h3>重点难点</h3><h4>高频考点</h4><ul><li>Transformer架构与自注意力机制</li><li>RAG系统设计与优化</li><li>Agent开发流程与工具调用</li><li>工作流编排（节点类型、变量传递）</li><li>Multi-Agent协作模式</li><li>方案设计方法论（SPIN、TDD框架）</li><li>行业场景适配（金融、政务、医疗等）</li></ul><h4>难点突破</h4><ul><li>理解Q/K/V计算逻辑而非死记硬背</li><li>区分召回率与精确率的应用场景</li><li>掌握三种分块策略的优缺点对比</li><li>熟悉ADP平台的企业级特性</li></ul><h3>应试技巧</h3><p>90分钟60题，平均每题1.5分钟。建议先做有把握的题目，标记不确定的题目最后复查。多选题注意"以下哪些"和"以下哪个不是"的审题。</p>'},
+    {id:'adp-official-doc',title:'腾讯云ADP官方文档',category:'官方文档',type:'external',url:'https://cloud.tencent.com/document/product/adx',description:'ADP平台完整技术文档，包含API参考、开发指南和最佳实践。',content:'<h3>平台概述</h3><p>腾讯云ADP（Application Development Platform）是面向企业的AI应用开发平台，定位为"让企业快速构建AI原生应用"。</p><h3>核心功能</h3><h4>1. 模型服务</h4><p>支持接入混元、DeepSeek、ChatGLM、Llama等多家模型提供商，提供智能路由和成本优化策略。</p><h4>2. 知识库系统</h4><p>支持PDF、Word、Excel、Markdown等多种文档格式，提供固定分块、语义分块、递归分块三种策略，支持Chunk Overlap防止信息丢失。</p><h4>3. 工作流引擎</h4><p>支持LLM节点、条件节点、代码节点、HTTP节点、知识检索节点等多种节点类型，支持分支合并、并行执行、循环结构和子工作流。</p><h4>4. Agent框架</h4><p>支持单Agent、工作流Agent和Multi-Agent三种应用类型，提供系统提示词设计、工具调用、MCP协议等能力。</p><h3>企业级特性</h3><ul><li>权限管理（RBAC）</li><li>审计日志</li><li>多租户隔离</li><li>私有化部署</li><li>监控告警</li></ul>'},
+    {id:'adp-fde-learning',title:'FDE官方学习中心',category:'官方文档',type:'external',url:'https://cloud.tencent.com/product/adx',description:'腾讯云ADP FDE官方学习资源，包含教程、视频和实操指南。',content:'<h3>学习路径</h3><p>官方学习中心提供了从入门到进阶的完整学习路径：</p><h4>入门阶段</h4><ul><li>AI与大模型基础概念</li><li>FDE角色定位与职责</li><li>ADP平台基本操作</li></ul><h4>进阶阶段</h4><ul><li>RAG系统设计与优化</li><li>Agent开发与工具调用</li><li>工作流编排实战</li><li>Multi-Agent架构设计</li></ul><h4>高级阶段</h4><ul><li>行业解决方案设计</li><li>性能优化与成本控制</li><li>安全合规与责任AI</li><li>云原生部署实践</li></ul><h3>学习资源</h3><p>官方提供视频教程、实操实验室、案例库和认证模拟题等多种学习资源，建议结合本系统进行系统学习。</p>'},
+    {id:'fde-learning-path',title:'FDE学习路线图',category:'学习指南',type:'external',url:'http://lib.uml.com.cn/ebook/FDE/learning-path.asp',description:'系统化的FDE学习路线图，包含各阶段学习目标和推荐资源。',content:'<h3>学习阶段规划</h3><h4>第一阶段：AI基础（1-2周）</h4><p>目标：理解大模型基本原理，掌握Prompt Engineering基础。</p><ul><li>Transformer架构与注意力机制</li><li>GPT/BERT模型原理</li><li>Tokenization与推理参数</li><li>Prompt Engineering方法</li></ul><h4>第二阶段：平台能力（2-3周）</h4><p>目标：熟悉ADP平台各项功能，能够独立搭建应用。</p><ul><li>ADP平台架构与操作</li><li>知识库构建与优化</li><li>RAG系统设计与评测</li><li>模型接入与管理</li></ul><h4>第三阶段：开发实战（3-4周）</h4><p>目标：掌握Agent开发全流程，能够设计复杂工作流。</p><ul><li>单Agent构建与调试</li><li>工具调用与MCP协议</li><li>工作流编排（标准模式/单工作流）</li><li>Multi-Agent协作设计</li></ul><h4>第四阶段：方案设计（2-3周）</h4><p>目标：具备客户需求分析和方案设计能力。</p><ul><li>SPIN需求分析方法</li><li>方案适配性评估</li><li>行业场景解决方案</li><li>技术规格书编写</li></ul><h4>第五阶段：冲刺备考（2周）</h4><p>目标：通过模拟考试查漏补缺，达到考试要求。</p><ul><li>综合复习与薄弱点强化</li><li>模拟考试（至少3次）</li><li>高频考点速记</li></ul>'},
+    {id:'fde-70pages',title:'FDE入门指南（70页）',category:'学习指南',type:'external',url:'https://m.sohu.com/a/1084907755_121124365/',description:'全面的FDE入门指南，涵盖FDE角色定义、核心技能和发展路径。',content:'<h3>FDE角色定义</h3><p>FDE（Forward Deployed Engineer，前沿部署工程师）是驻扎在客户现场的技术角色，兼具工程能力与业务理解力。FDE的概念最早源自Palantir，在AI 3.0时代（大模型+Agent时代）发挥着越来越重要的作用。</p><h3>核心技能要求</h3><h4>技术能力</h4><ul><li>大模型原理与应用（Transformer、LLM、Prompt Engineering）</li><li>AI Agent开发（感知-推理-行动循环、工具使用、记忆系统）</li><li>RAG系统设计（知识库构建、检索优化、效果评测）</li><li>工作流编排（节点设计、变量传递、错误处理）</li><li>云原生基础（容器化、Kubernetes、CI/CD）</li></ul><h4>业务能力</h4><ul><li>客户需求分析（SPIN框架、痛点识别）</li><li>方案设计（能力映射、技术规格书）</li><li>项目管理（POC验证、交付实施）</li><li>沟通协作（干系人管理、期望管理）</li></ul><h4>行业知识</h4><ul><li>金融行业（智能客服、风控、合规）</li><li>政务行业（政策问答、等保要求）</li><li>制造业（质检、预测性维护）</li><li>零售业（智能推荐、库存优化）</li><li>医疗行业（医疗问答、合规要求）</li><li>教育行业（智能辅导、内容生成）</li></ul><h3>发展路径</h3><p>FDE的职业发展路径通常为：初级FDE → 高级FDE → FDE技术专家 → FDE团队负责人。随着AI在企业中的深入应用，FDE的需求将持续增长。</p>'},
+    {id:'fde-tutorial-series',title:'FDE学习系列教程大纲',category:'学习指南',type:'external',url:'https://cloud.tencent.com/product/adx',description:'腾讯云官方FDE系列教程，包含从基础到高级的完整课程体系。',content:'<h3>课程大纲</h3><h4>模块一：AI与生成式AI基础</h4><ul><li>AI发展历程（1.0→2.0→3.0）</li><li>Transformer架构原理</li><li>大语言模型（LLM）基础</li><li>Prompt Engineering方法</li><li>AI Agent概念与架构</li></ul><h4>模块二：ADP核心功能</h4><ul><li>ADP平台概述与架构</li><li>应用类型与创建流程</li><li>模型接入与管理</li><li>知识库系统（分块策略、向量化）</li><li>RAG检索增强生成</li><li>知识库高级功能（引用溯源、质量评估）</li></ul><h4>模块三：智能体开发</h4><ul><li>单Agent构建（系统提示词设计）</li><li>工具调用与函数调用（MCP协议）</li><li>工作流编排基础</li><li>标准模式工作流（并行、循环、子工作流）</li><li>Multi-Agent协作模式</li></ul><h4>模块四：场景理解与方案设计</h4><ul><li>客户需求分析方法（SPIN、TDD）</li><li>智能体方案适配性评估</li><li>方案设计方法论</li><li>行业场景：金融、政务、制造、零售、医疗、教育</li></ul><h4>模块五：交付实施与运维</h4><ul><li>POC快速验证</li><li>效果评测方法论</li><li>RAG效果评测（recall@k、MRR、NDCG）</li><li>性能优化与成本优化</li><li>监控与可观测性</li></ul><h4>模块六：安全合规</h4><ul><li>数据权限与隐私保护</li><li>内容安全</li><li>模型幻觉与越权访问</li><li>合规边界与责任AI</li></ul><h4>模块七：云原生部署</h4><ul><li>容器化基础（Docker）</li><li>Kubernetes基础</li><li>CI/CD与DevOps</li><li>模型推理部署（vLLM、量化）</li><li>网络与安全</li></ul>'},
+    {id:'fde-github-book',title:'FDE前沿部署工程师指南（GitHub）',category:'GitHub资源',type:'github',url:'https://github.com/xdash/FDE-the-Guidance-Book-of-Forward-Deployed-Engineer',description:'社区编写的FDE完整指南，范冰著。涵盖FDE角色、技能要求、工作流程和最佳实践。全书免费公开。',content:'<h3>关于本书</h3><p>《前线部署工程师：人工智能时代的客户价值交付秘籍》，范冰（XDash）著。2025年夏天，麻省理工学院报告显示全球企业在生成式AI上投入三四百亿美元，其中95%的项目未能产生可量化的价值。与此同时，FDE岗位发布量一年暴涨七倍。本书系统研究了FDE这一角色的起源、方法论和实践案例。</p><blockquote><p>核心观点：模型已经不稀缺了，能把模型塞进客户真实业务里的人，才稀缺。</p></blockquote><h3>全书目录</h3><h4>自序</h4><p>介绍FDE概念的背景和研究方法。作者通过翻遍一手材料（Palantir早期高管播客、前员工回忆录、风投分析、MIT报告、招聘启事等）系统梳理FDE岗位。</p><h4>第1章：FDE的崛起</h4><ul><li>FDE概念的起源：从Palantir情报项目到AI时代</li><li>FDE与传统售前/售后工程师的本质区别</li><li>为什么FDE在AI 3.0时代爆发（大模型+Agent时代）</li><li>FDE的核心价值：桥接业务需求与技术实现</li></ul><h4>第2章：解决正确的问题</h4><ul><li>需求分析方法论：如何识别客户的真实痛点</li><li>区分表面需求和根本问题</li><li>可行性评估：技术、成本、时间三维度</li><li>AI适用性判断：什么场景适合用AI解决</li></ul><h4>第3章：赢得客户</h4><ul><li>客户沟通与信任建立</li><li>POC（概念验证）的设计与执行</li><li>方案演示与价值呈现</li><li>处理客户异议与顾虑</li></ul><h4>第4章：激活部署</h4><ul><li>从POC到生产环境的交付流程</li><li>系统集成与数据对接</li><li>用户培训与变更管理</li><li>上线初期的支持与优化</li></ul><h4>第5章：守住续约</h4><ul><li>客户成功管理</li><li>持续价值交付与效果追踪</li><li>续约策略与风险预警</li><li>客户满意度提升方法</li></ul><h4>第6章：扩大收入</h4><ul><li>交叉销售与追加销售</li><li>从单点应用到平台化扩展</li><li>客户案例沉淀与复用</li><li>生态合作与渠道建设</li></ul><h4>第7章：规模化复制</h4><ul><li>FDE团队的建设与管理</li><li>知识沉淀与标准化流程</li><li>从项目制到产品化</li><li>FDE能力的组织化传承</li></ul><h4>第8章：完整案例集</h4><ul><li>165个真实可查的案例</li><li>涵盖Palantir、OpenAI、Anthropic、Harvey、Sierra等公司</li><li>中国第一批FDE实践者的经验</li><li>跨行业案例：金融、政务、制造、零售、医疗、教育</li></ul><h4>后记：FDE的职业道德</h4><p>讨论FDE在实践中应遵循的职业道德准则，包括客户利益优先、数据隐私保护、技术诚实等。</p><h4>附录A：FDE应当关注的常用指标</h4><ul><li>客户健康度指标</li><li>项目交付指标</li><li>业务价值指标</li><li>团队效能指标</li></ul><h4>附录B：FDE人物与团队名单</h4><p>整理全球范围内知名的FDE从业者和团队，供学习参考。</p><h4>附录C：全书案例索引与资料出处</h4><p>所有引用数据和案例的来源标注，确保可核查性。</p><h3>核心要点总结</h3><h4>FDE是什么</h4><p>FDE（Forward Deployed Engineer）是驻扎在客户现场的技术角色，兼具工程能力与业务理解力。FDE不是售前也不是售后，而是端到端交付客户价值的"全栈问题解决者"。</p><h4>FDE的核心技能</h4><ul><li><strong>技术能力</strong>：全栈工程、AI/ML基础、云原生、系统集成</li><li><strong>业务能力</strong>：需求分析、方案设计、项目管理、ROI评估</li><li><strong>软技能</strong>：沟通协作、客户管理、期望管理、冲突解决</li></ul><h4>FDE的工作流程</h4><ol><li>发现与识别客户的真实问题</li><li>设计技术方案并验证可行性（POC）</li><li>赢得客户信任并签约</li><li>激活部署并确保上线成功</li><li>持续交付价值并守住续约</li><li>扩大收入并规模化复制</li></ol><blockquote><p>本书官网：fde4.ai，可在线阅读全文或下载PDF。本系统已提取核心内容供离线学习参考。</p></blockquote>'},
+    {id:'ai-agents-beginners',title:'AI Agents入门（Microsoft）',category:'GitHub资源',type:'github',url:'https://github.com/microsoft/ai-agents-for-beginners',description:'微软官方AI Agents入门课程，18节课系统讲解AI Agent的概念、架构、设计模式和开发方法。含代码示例。',content:'<h3>课程介绍</h3><p>微软官方推出的AI Agents入门课程（AI Agents for Beginners），教授构建AI Agent所需的全部知识。课程包含18节课，涵盖从基础概念到生产部署的完整内容，每节课都配有代码示例。</p><h3>课程大纲（18节课）</h3><h4>Lesson 0: 课程设置</h4><p>开发环境配置、工具安装、课程结构介绍。</p><h4>Lesson 1: AI Agents简介与用例</h4><ul><li>什么是AI Agent？定义与核心特征</li><li>Agent与传统AI的区别：自主性、反应性、主动性、社交能力</li><li>Agent的典型应用场景</li><li>Agent的价值主张</li></ul><h4>Lesson 2: 探索Agentic框架</h4><ul><li>主流AI Agent开发框架介绍</li><li>框架对比与选型指南</li><li>框架的核心组件与架构</li><li>实战：使用框架构建简单Agent</li></ul><h4>Lesson 3: 理解Agentic设计模式</h4><ul><li>Agent设计的核心原则</li><li>常见设计模式概述</li><li>如何选择合适的模式</li><li>设计模式的最佳实践</li></ul><h4>Lesson 4: 工具使用设计模式</h4><ul><li>Tool Use Design Pattern详解</li><li>工具定义与注册</li><li>Agent如何选择和调用工具</li><li>工具编排与错误处理</li><li>实战：构建带工具调用能力的Agent</li></ul><h4>Lesson 5: Agentic RAG</h4><ul><li>RAG在Agent中的应用</li><li>Agent如何主动检索信息</li><li>多轮检索与迭代优化</li><li>RAG Agent的设计要点</li></ul><h4>Lesson 6: 构建可信赖的Agent</h4><ul><li>Agent安全性设计</li><li>权限控制与最小权限原则</li><li>防止Prompt注入攻击</li><li>输出审核与内容安全</li><li>负责任AI原则在Agent中的实践</li></ul><h4>Lesson 7: 规划设计模式</h4><ul><li>Planning Design Pattern详解</li><li>Agent如何分解复杂任务</li><li>任务规划与执行策略</li><li>动态调整与重规划</li></ul><h4>Lesson 8: Multi-Agent设计模式</h4><ul><li>Multi-Agent架构模式</li><li>Agent间通信机制</li><li>任务分解与协调策略</li><li>冲突解决与结果汇总</li><li>实战：构建Multi-Agent系统</li></ul><h4>Lesson 9: 元认知设计模式</h4><ul><li>Metacognition Design Pattern</li><li>Agent的自我反思与评估</li><li>自我改进机制</li><li>元认知在复杂任务中的应用</li></ul><h4>Lesson 10: 生产环境中的Agent</h4><ul><li>Agent从开发到生产的流程</li><li>生产环境的特殊要求</li><li>监控与可观测性</li><li>性能优化与成本控制</li></ul><h4>Lesson 11: 使用Agentic协议（MCP、A2A、NLWeb）</h4><ul><li>MCP（Model Context Protocol）详解</li><li>A2A（Agent-to-Agent）协议</li><li>NLWeb协议</li><li>协议选型与集成</li></ul><h4>Lesson 12: Agent的上下文工程</h4><ul><li>Context Engineering for AI Agents</li><li>如何为Agent构建有效上下文</li><li>上下文窗口管理</li><li>上下文压缩与优化</li></ul><h4>Lesson 13: Agent记忆管理</h4><ul><li>Managing Agentic Memory</li><li>短期记忆（对话上下文）</li><li>长期记忆（向量数据库）</li><li>记忆检索与更新策略</li></ul><h4>Lesson 14: 微软Agent框架探索</h4><ul><li>Microsoft Agent Framework介绍</li><li>框架核心功能</li><li>与其他框架的对比</li><li>实战：使用微软框架构建Agent</li></ul><h4>Lesson 15: 构建计算机使用Agent（CUA）</h4><ul><li>Computer Use Agents概念</li><li>浏览器自动化Agent</li><li>GUI操作与交互</li><li>CUA的应用场景与限制</li></ul><h4>Lesson 16: 部署可扩展的Agent</h4><ul><li>Agent的规模化部署</li><li>负载均衡与弹性伸缩</li><li>多租户架构</li><li>高可用设计</li></ul><h4>Lesson 17: 创建本地AI Agent</h4><ul><li>本地Agent的优势</li><li>本地模型选择与部署</li><li>离线Agent设计</li><li>隐私保护与数据安全</li></ul><h4>Lesson 18: 保护AI Agent安全</h4><ul><li>Agent安全威胁分析</li><li>安全架构设计</li><li>安全测试与审计</li><li>安全运维最佳实践</li></ul><h3>课程特色</h3><ul><li><strong>18节完整课程</strong>：从入门到生产部署全覆盖</li><li><strong>代码示例</strong>：每节课配有可运行的代码</li><li><strong>多语言支持</strong>：支持50+语言翻译，包括简体中文</li><li><strong>实战导向</strong>：注重实际应用而非纯理论</li><li><strong>微软生态</strong>：深度集成微软AI工具和框架</li></ul><h3>与FDE认证的关系</h3><p>本课程与腾讯云FDE认证高度互补：</p><ul><li>Lesson 1-3 对应 FDE模块1（AI基础）</li><li>Lesson 4-5 对应 FDE模块2（RAG系统）</li><li>Lesson 6 对应 FDE模块6（安全合规）</li><li>Lesson 7-9 对应 FDE模块3（Agent开发）</li><li>Lesson 10-11 对应 FDE模块5（交付运维）</li><li>Lesson 16-18 对应 FDE模块7（云原生部署）</li></ul><blockquote><p>建议：结合本系统的FDE学习内容，同步学习本课程对应章节，可获得更全面的Agent开发能力。访问原链接获取最新代码示例和多语言翻译版本。</p></blockquote>'}
+];
+
+function getReadingProgress() {
+    let p = localStorage.getItem('fde_readingProgress');
+    if (!p) { p = '{}'; localStorage.setItem('fde_readingProgress', p); }
+    return JSON.parse(p);
+}
+function saveReadingProgress(resId, scrollPct) {
+    let p = getReadingProgress();
+    if (!p[resId]) p[resId] = {readPercent:0, lastRead:null, scrollPosition:0};
+    p[resId].readPercent = Math.min(100, Math.round(scrollPct));
+    p[resId].lastRead = todayStr();
+    saveReadingProgressData(p);
+}
+function saveReadingProgressData(p) { localStorage.setItem('fde_readingProgress', JSON.stringify(p)); }
+
+let selectedResource = null;
+function renderResources() {
+    if (!selectedResource) selectedResource = RESOURCES[0].id;
+    let readingProg = getReadingProgress();
+    
+    // Build sidebar
+    let sidebar = '<div class="resource-sidebar">';
+    let currentCat = '';
+    let groupOpen = false;
+    
+    RESOURCES.forEach(res => {
+        if (res.category !== currentCat) {
+            if (groupOpen) sidebar += '</div>'; // Close previous group
+            currentCat = res.category;
+            sidebar += '<div class="res-group">';
+            sidebar += '<div class="res-group-title">' + currentCat + '</div>';
+            groupOpen = true;
+        }
+        let prog = readingProg[res.id];
+        let pct = prog ? prog.readPercent : 0;
+        let active = res.id === selectedResource ? ' active' : '';
+        sidebar += '<div class="res-item' + active + '" onclick="selectResource(\'' + res.id + '\')">';
+        sidebar += '<div class="res-title"><span>' + res.title + '</span></div>';
+        sidebar += '<div class="res-meta"><span>' + (pct > 0 ? '已读' + pct + '%' : '未读') + '</span>';
+        sidebar += '<span>' + (prog && prog.lastRead ? '上次: ' + prog.lastRead.substring(5) : '') + '</span></div>';
+        sidebar += '<div class="res-progress"><div class="fill" style="width:' + pct + '%"></div></div>';
+        sidebar += '</div>';
+    });
+    
+    if (groupOpen) sidebar += '</div>'; // Close last group
+    sidebar += '</div>'; // Close resource-sidebar
+    
+    // Build main content
+    let res = RESOURCES.find(r => r.id === selectedResource);
+    if (!res) {
+        document.getElementById('view-resources').innerHTML = sidebar;
+        return;
+    }
+    
+    let prog = readingProg[res.id];
+    let pct = prog ? prog.readPercent : 0;
+    let main = '<div class="resource-main">';
+    main += '<div class="res-header">';
+    main += '<h2>' + res.title + '</h2>';
+    main += '<div class="res-info">';
+    main += '<span>分类: ' + res.category + '</span>';
+    main += '<span>类型: ' + (res.type === 'github' ? 'GitHub' : '外部资源') + '</span>';
+    main += '<span>阅读进度: <strong style="color:' + (pct >= 80 ? 'var(--success)' : pct > 0 ? 'var(--warning)' : 'var(--text3)') + '">' + pct + '%</strong></span>';
+    if (prog && prog.lastRead) main += '<span>上次阅读: ' + prog.lastRead + '</span>';
+    main += '</div></div>';
+    main += '<div class="res-content" id="resContentArea">' + res.content + '</div>';
+    
+    if (res.url) {
+        main += '<a class="res-external-link" href="' + res.url + '" target="_blank">访问原始资源 ↗</a>';
+    }
+    
+    main += '<div class="res-nav">';
+    let idx = RESOURCES.findIndex(r => r.id === selectedResource);
+    if (idx > 0) {
+        main += '<button class="btn btn-outline" onclick="selectResource(\'' + RESOURCES[idx-1].id + '\')">← 上一篇</button>';
+    } else {
+        main += '<div></div>';
+    }
+    
+    if (pct > 0 && pct < 100) {
+        main += '<button class="btn btn-primary" onclick="continueReading()">继续阅读</button>';
+    } else if (pct < 100) {
+        main += '<button class="btn btn-success" onclick="markAsRead()">标记为已读</button>';
+    } else {
+        main += '<button class="btn btn-success" disabled>已完成阅读</button>';
+    }
+    
+    if (idx < RESOURCES.length - 1) {
+        main += '<button class="btn btn-outline" onclick="selectResource(\'' + RESOURCES[idx+1].id + '\')">下一篇 →</button>';
+    } else {
+        main += '<div></div>';
+    }
+    main += '</div></div>'; // Close res-nav and resource-main
+    
+    // Combine into layout
+    document.getElementById('view-resources').innerHTML = '<div class="resource-layout">' + sidebar + main + '</div>';
+    
+    // Track reading progress via scroll
+    setTimeout(trackReadingProgress, 100);
+}
+function selectResource(id) { selectedResource = id; renderResources(); }
+function trackReadingProgress() {
+    let contentArea = document.getElementById('resContentArea');
+    let mainArea = document.querySelector('.resource-main');
+    if (!contentArea || !mainArea) return;
+    mainArea.addEventListener('scroll', function() {
+        let scrollTop = mainArea.scrollTop;
+        let scrollHeight = contentArea.offsetHeight;
+        let clientHeight = mainArea.clientHeight;
+        let pct = Math.min(100, Math.round((scrollTop / (scrollHeight - clientHeight)) * 100));
+        if (selectedResource && pct > 0) {
+            saveReadingProgress(selectedResource, pct);
+            // Update sidebar progress display
+            let items = document.querySelectorAll('.res-item');
+            items.forEach(item => {
+                if (item.onclick && item.onclick.toString().includes(selectedResource)) {
+                    let meta = item.querySelector('.res-meta');
+                    if (meta) meta.innerHTML = '<span>已读' + pct + '%</span><span>上次: ' + todayStr().substring(5) + '</span>';
+                    let fill = item.querySelector('.res-progress .fill');
+                    if (fill) fill.style.width = pct + '%';
+                }
+            });
+        }
+    });
+}
+function continueReading() {
+    let mainArea = document.querySelector('.resource-main');
+    if (!mainArea) return;
+    let prog = getReadingProgress();
+    let resProg = prog[selectedResource];
+    if (resProg && resProg.scrollPosition > 0) {
+        mainArea.scrollTop = resProg.scrollPosition;
+    } else {
+        mainArea.scrollTop = 300;
+    }
+}
+function markAsRead() {
+    if (selectedResource) {
+        saveReadingProgress(selectedResource, 100);
+        renderResources();
+    }
+}
+
+// ==================== KNOWLEDGE SUMMARIES ====================
+let selectedSummary = null;
+let summaryFilter = 'all';
+let summarySearch = '';
+
+function renderSummaries() {
+    let summaries = getSummaries();
+    let term = summarySearch.trim();
+    let filtered = summaries.filter(s => {
+        let matchCategory = summaryFilter === 'all' || s.category === summaryFilter;
+        let matchSearch = !summarySearch || 
+            s.title.toLowerCase().includes(summarySearch.toLowerCase()) ||
+            stripMarks(s.content).toLowerCase().includes(summarySearch.toLowerCase()) ||
+            (s.tags && s.tags.some(t => t.toLowerCase().includes(summarySearch.toLowerCase())));
+        return matchCategory && matchSearch;
+    });
+    
+    // Sort by updatedAt desc
+    filtered.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+    
+    // Sidebar
+    let sidebar = '<div class="summary-sidebar">';
+    sidebar += '<button class="btn btn-primary" style="width:100%;margin-bottom:16px" onclick="showAddSummaryForm()">+ 添加摘要</button>';
+    sidebar += '<input type="text" class="search-box" placeholder="搜索标题、内容、标签..." value="' + summarySearch + '" oninput="summarySearch=this.value;renderSummaries()">';
+    
+    // Category filter
+    sidebar += '<div class="filter-section">';
+    sidebar += '<div class="filter-title">分类筛选</div>';
+    let categories = ['all', ...MODULE_NAMES.filter(n => n)];
+    categories.forEach(cat => {
+        let active = summaryFilter === cat ? ' active' : '';
+        let label = cat === 'all' ? '全部' : cat;
+        sidebar += '<div class="filter-item' + active + '" onclick="summaryFilter=\'' + cat + '\';renderSummaries()">' + label + '</div>';
+    });
+    sidebar += '</div>';
+    
+    // Summary list
+    sidebar += '<div class="summary-list">';
+    if (filtered.length === 0) {
+        sidebar += '<div style="text-align:center;padding:20px;color:var(--text3);font-size:13px">暂无摘要</div>';
+    } else {
+        filtered.forEach(s => {
+            let active = selectedSummary === s.id ? ' active' : '';
+            sidebar += '<div class="summary-item' + active + '" onclick="selectSummary(\'' + s.id + '\')">';
+            sidebar += '<div class="s-title">' + emitText(s.title, term) + '</div>';
+            sidebar += '<div class="s-meta">' + s.category + ' · ' + s.updatedAt.substring(5) + '</div>';
+            sidebar += '</div>';
+        });
+    }
+    sidebar += '</div></div>';
+    
+    // Main content
+    let main = '<div class="summary-main">';
+    if (!selectedSummary) {
+        main += '<div class="empty-state">';
+        main += '<div class="empty-icon">📝</div>';
+        main += '<h3>知识摘要</h3>';
+        main += '<p style="margin-top:8px">从学习资料中收集重点知识，方便后期复习</p>';
+        main += '<button class="btn btn-primary mt-16" onclick="showAddSummaryForm()">添加第一条摘要</button>';
+        main += '</div>';
+    } else {
+        let s = summaries.find(x => x.id === selectedSummary);
+        if (s) {
+            main += '<div class="summary-header">';
+            main += '<h2>' + emitText(s.title, term) + '</h2>';
+            main += '<div class="summary-meta">';
+            main += '<span>分类: ' + s.category + '</span>';
+            main += '<span>来源: ' + (s.source || '未标注') + '</span>';
+            main += '<span>创建: ' + s.createdAt + '</span>';
+            main += '<span>更新: ' + s.updatedAt + '</span>';
+            if (s.tags && s.tags.length > 0) {
+                main += '<span>标签: ' + s.tags.map(t => '<span class="badge badge-primary" style="margin-left:4px">' + t + '</span>').join('') + '</span>';
+            }
+            main += '</div></div>';
+            main += '<div class="summary-content">' + renderMarks(s.content, term) + '</div>';
+            main += '<div class="summary-actions">';
+            main += '<button class="btn btn-outline" onclick="editSummary(\'' + s.id + '\')">编辑</button>';
+            main += '<button class="btn btn-error" onclick="deleteSummary(\'' + s.id + '\')">删除</button>';
+            main += '</div>';
+        }
+    }
+    main += '</div>';
+    
+    let searchHadFocus = document.activeElement && document.activeElement.classList.contains('search-box');
+    document.getElementById('view-summaries').innerHTML = '<div class="summary-layout">' + sidebar + main + '</div>';
+    if (searchHadFocus) {
+        let box = document.querySelector('#view-summaries .search-box');
+        if (box) { box.focus(); box.setSelectionRange(box.value.length, box.value.length); }
+    }
+    if (term) {
+        let hit = document.querySelector('.summary-main .find-hit');
+        if (hit) hit.scrollIntoView({ block: 'center' });
+    }
+}
+
+function selectSummary(id) {
+    selectedSummary = id;
+    renderSummaries();
+}
+
+function showAddSummaryForm() {
+    showSummaryModal(summaryFormHtml('添加知识摘要', null, 'saveNewSummary()'));
+}
+
+function saveNewSummary() {
+    let title = document.getElementById('sumTitle').value.trim();
+    let category = document.getElementById('sumCategory').value;
+    let source = document.getElementById('sumSource').value.trim();
+    let content = document.getElementById('sumContent').value.trim();
+    let tagsStr = document.getElementById('sumTags').value.trim();
+    
+    if (!title || !content) {
+        alert('请填写标题和内容');
+        return;
+    }
+    
+    let summaries = getSummaries();
+    let newSummary = {
+        id: 's' + Date.now(),
+        title: title,
+        content: content,
+        source: source,
+        category: category,
+        tags: tagsStr ? tagsStr.split(/[,，]/).map(t => t.trim()).filter(t => t) : [],
+        createdAt: todayStr(),
+        updatedAt: todayStr()
+    };
+    
+    summaries.push(newSummary);
+    saveSummaries(summaries);
+    selectedSummary = newSummary.id;
+    closeModal();
+    renderSummaries();
+}
+
+function editSummary(id) {
+    let summaries = getSummaries();
+    let s = summaries.find(x => x.id === id);
+    if (!s) return;
+    showSummaryModal(summaryFormHtml('编辑知识摘要', s, "updateSummary('" + id + "')"));
+}
+
+function updateSummary(id) {
+    let title = document.getElementById('sumTitle').value.trim();
+    let category = document.getElementById('sumCategory').value;
+    let source = document.getElementById('sumSource').value.trim();
+    let content = document.getElementById('sumContent').value.trim();
+    let tagsStr = document.getElementById('sumTags').value.trim();
+    
+    if (!title || !content) {
+        alert('请填写标题和内容');
+        return;
+    }
+    
+    let summaries = getSummaries();
+    let idx = summaries.findIndex(x => x.id === id);
+    if (idx === -1) return;
+    
+    summaries[idx].title = title;
+    summaries[idx].category = category;
+    summaries[idx].source = source;
+    summaries[idx].content = content;
+    summaries[idx].tags = tagsStr ? tagsStr.split(/[,，]/).map(t => t.trim()).filter(t => t) : [];
+    summaries[idx].updatedAt = todayStr();
+    
+    saveSummaries(summaries);
+    closeModal();
+    renderSummaries();
+}
+
+function deleteSummary(id) {
+    if (!confirm('确定要删除这条摘要吗？')) return;
+    let summaries = getSummaries();
+    summaries = summaries.filter(x => x.id !== id);
+    saveSummaries(summaries);
+    selectedSummary = null;
+    renderSummaries();
+}
+
+function escHtml(v) {
+    return String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function summaryFormHtml(heading, s, onSubmit) {
+    let tags = s && s.tags ? s.tags.join(', ') : '';
+    let html = '<div class="modal-title">' + heading + '</div>';
+    html += '<button class="modal-close" onclick="closeModal()">✕</button>';
+    html += '<div class="summary-form">';
+    html += '<label>标题</label><input type="text" id="sumTitle" placeholder="摘要标题" value="' + escHtml(s ? s.title : '') + '">';
+    html += '<div class="form-row">';
+    html += '<div><label>分类</label><select id="sumCategory">';
+    MODULE_NAMES.filter(n => n).forEach(m => {
+        let selected = s && s.category === m ? ' selected' : '';
+        html += '<option value="' + m + '"' + selected + '>' + m + '</option>';
+    });
+    html += '</select></div>';
+    html += '<div><label>来源</label><input type="text" id="sumSource" placeholder="如：FDE指南第3章" value="' + escHtml(s ? s.source : '') + '"></div>';
+    html += '</div>';
+    html += '<div class="label-row"><label>内容</label><button class="btn-mini" type="button" onclick="openBigEditor(\'sumContent\')">⤢ 放大输入</button></div>';
+    html += '<textarea id="sumContent" ondblclick="openBigEditor(\'sumContent\')" placeholder="粘贴或输入知识要点……（双击本框打开大窗口书写，或点右上角“放大输入”）">' + escHtml(s ? s.content : '') + '</textarea>';
+    html += '<label>标签（用逗号分隔）</label><input type="text" id="sumTags" placeholder="如：RAG, Agent, 工作流" value="' + escHtml(tags) + '">';
+    html += '<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">';
+    html += '<button class="btn btn-outline" onclick="closeModal()">取消</button>';
+    html += '<button class="btn btn-primary" onclick="' + onSubmit + '">' + (s ? '更新' : '保存') + '</button>';
+    html += '</div></div>';
+    return html;
+}
+
+function showSummaryModal(html) {
+    showModal(html);
+    document.getElementById('modalContent').classList.add('wide');
+}
+
+const MARK_CLASS = { y:'mk-y', g:'mk-g', r:'mk-r', b:'mk-b', tr:'mk-tr', tb:'mk-tb' };
+const MARK_RE = /\{\{(y|g|r|b|tr|tb)\|([\s\S]*?)\}\}/g;
+
+function stripMarks(t) {
+    return String(t == null ? '' : t).replace(MARK_RE, '$2');
+}
+
+function escapeRegExp(s) {
+    return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function emitText(raw, term) {
+    if (!term) return escHtml(raw);
+    let re = new RegExp(escapeRegExp(term), 'gi');
+    let out = '', last = 0, m;
+    while ((m = re.exec(raw))) {
+        if (!m[0]) { re.lastIndex++; continue; }
+        out += escHtml(raw.slice(last, m.index));
+        out += '<mark class="find-hit">' + escHtml(m[0]) + '</mark>';
+        last = m.index + m[0].length;
+    }
+    return out + escHtml(raw.slice(last));
+}
+
+function renderMarks(t, term) {
+    let s = String(t == null ? '' : t), out = '', last = 0, m;
+    MARK_RE.lastIndex = 0;
+    while ((m = MARK_RE.exec(s))) {
+        out += emitText(s.slice(last, m.index), term);
+        out += '<span class="' + MARK_CLASS[m[1]] + '">' + emitText(m[2], term) + '</span>';
+        last = m.index + m[0].length;
+    }
+    return out + emitText(s.slice(last), term);
+}
+
+function applyMark(code) {
+    if (isMarkPreviewOn()) { alert('请先点"继续编辑"退出预览模式'); return; }
+    let et = document.getElementById('editorText');
+    let a = et.selectionStart, b = et.selectionEnd;
+    if (a === b) { alert('请先在内容里选中要标记的文字'); return; }
+    let v = et.value, open = '{{' + code + '|', close = '}}';
+    let sel = v.slice(a, b);
+    if (v.slice(a - open.length, a) === open && v.slice(b, b + close.length) === close) {
+        et.value = v.slice(0, a - open.length) + sel + v.slice(b + close.length);
+        setEditorSelection(et, a - open.length, a - open.length + sel.length);
+    } else {
+        sel = stripMarks(sel);
+        et.value = v.slice(0, a) + open + sel + close + v.slice(b);
+        setEditorSelection(et, a + open.length, a + open.length + sel.length);
+    }
+    updateEditorCount();
+}
+
+function clearMark() {
+    if (isMarkPreviewOn()) { alert('请先点"继续编辑"退出预览模式'); return; }
+    let et = document.getElementById('editorText');
+    let a = et.selectionStart, b = et.selectionEnd;
+    if (a === b) { alert('请先选中要去掉标记的文字'); return; }
+    let v = et.value, sel = stripMarks(v.slice(a, b));
+    et.value = v.slice(0, a) + sel + v.slice(b);
+    setEditorSelection(et, a, a + sel.length);
+    updateEditorCount();
+}
+
+function setEditorSelection(et, a, b) {
+    et.focus();
+    et.setSelectionRange(a, b);
+}
+
+function isMarkPreviewOn() {
+    return document.getElementById('editorPreview').style.display === 'block';
+}
+
+function toggleMarkPreview() {
+    let et = document.getElementById('editorText');
+    let pv = document.getElementById('editorPreview');
+    let btn = document.getElementById('mkPreviewBtn');
+    if (pv.style.display === 'block') {
+        pv.style.display = 'none';
+        et.style.display = 'block';
+        btn.textContent = '👁 预览高亮';
+        et.focus();
+    } else {
+        pv.innerHTML = renderMarks(et.value) || '<span style="color:var(--text3)">（暂无内容）</span>';
+        pv.style.display = 'block';
+        et.style.display = 'none';
+        btn.textContent = '✎ 继续编辑';
+    }
+}
+
+function resetMarkPreview() {
+    let pv = document.getElementById('editorPreview');
+    if (pv.style.display === 'block') toggleMarkPreview();
+}
+
+let editorTarget = null;
+
+function openBigEditor(targetId) {
+    let ta = document.getElementById(targetId);
+    if (!ta) return;
+    editorTarget = ta;
+    let p = document.getElementById('editorPanel');
+    document.getElementById('editorOverlay').classList.add('show');
+    p.style.display = 'flex';
+    if (!p.dataset.placed) {
+        let w = Math.min(800, window.innerWidth - 32);
+        let h = Math.min(600, window.innerHeight - 32);
+        p.style.width = w + 'px';
+        p.style.height = h + 'px';
+        p.style.left = Math.round((window.innerWidth - w) / 2) + 'px';
+        p.style.top = Math.round((window.innerHeight - h) / 2) + 'px';
+        p.dataset.placed = '1';
+    }
+    let et = document.getElementById('editorText');
+    et.value = ta.value;
+    updateEditorCount();
+    resetMarkPreview();
+    et.focus();
+    et.setSelectionRange(et.value.length, et.value.length);
+}
+
+function closeBigEditor(save) {
+    resetMarkPreview();
+    document.getElementById('editorOverlay').classList.remove('show');
+    document.getElementById('editorPanel').style.display = 'none';
+    if (save && editorTarget) {
+        editorTarget.value = document.getElementById('editorText').value;
+        editorTarget.dispatchEvent(new Event('input', { bubbles: true }));
+        editorTarget.focus();
+    }
+    editorTarget = null;
+}
+
+function updateEditorCount() {
+    let v = document.getElementById('editorText').value;
+    document.getElementById('editorCount').textContent = stripMarks(v).length + ' 字 / ' + stripMarks(v).split('\n').length + ' 行';
+}
+
+function expandEditor() {
+    let p = document.getElementById('editorPanel');
+    if (p.dataset.expanded === '1') {
+        let r = JSON.parse(p.dataset.prevRect);
+        p.style.left = r.left + 'px'; p.style.top = r.top + 'px';
+        p.style.width = r.width + 'px'; p.style.height = r.height + 'px';
+        p.dataset.expanded = '0';
+    } else {
+        p.dataset.prevRect = JSON.stringify(p.getBoundingClientRect());
+        p.style.left = '16px'; p.style.top = '16px';
+        p.style.width = (window.innerWidth - 32) + 'px';
+        p.style.height = (window.innerHeight - 32) + 'px';
+        p.dataset.expanded = '1';
+    }
+}
+
+function startEditorDrag(e, mode) {
+    e.preventDefault();
+    let p = document.getElementById('editorPanel');
+    let r = p.getBoundingClientRect();
+    let sx = e.clientX, sy = e.clientY;
+    document.body.style.userSelect = 'none';
+    let move = ev => {
+        let dx = ev.clientX - sx, dy = ev.clientY - sy;
+        if (mode === 'move') {
+            p.style.left = Math.max(80 - r.width, Math.min(window.innerWidth - 80, r.left + dx)) + 'px';
+            p.style.top = Math.max(0, Math.min(window.innerHeight - 40, r.top + dy)) + 'px';
+        } else {
+            p.style.width = Math.max(360, Math.min(window.innerWidth - r.left, r.width + dx)) + 'px';
+            p.style.height = Math.max(220, Math.min(window.innerHeight - r.top, r.height + dy)) + 'px';
+        }
+        p.dataset.expanded = '0';
+    };
+    let up = () => {
+        document.body.style.userSelect = '';
+        window.removeEventListener('pointermove', move);
+        window.removeEventListener('pointerup', up);
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+}
+
+document.getElementById('editorHead').addEventListener('pointerdown', e => {
+    if (e.target.closest('.modal-close')) return;
+    startEditorDrag(e, 'move');
+});
+document.getElementById('editorResize').addEventListener('pointerdown', e => startEditorDrag(e, 'resize'));
+document.getElementById('editorOverlay').addEventListener('click', () => closeBigEditor(false));
+document.getElementById('editorText').addEventListener('input', updateEditorCount);
+document.getElementById('editorText').addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); closeBigEditor(true); }
+    else if (e.key === 'Escape') { e.preventDefault(); closeBigEditor(false); }
+});
+
+function showModal(html) {
+    document.getElementById('modalContent').innerHTML = html;
+    document.getElementById('modalOverlay').classList.add('show');
+}
+
+function closeModal() {
+    if (document.getElementById('editorPanel').style.display !== 'none') closeBigEditor(false);
+    document.getElementById('modalContent').classList.remove('wide');
+    document.getElementById('modalOverlay').classList.remove('show');
+}
+
+// ==================== INITIALIZATION ====================
+function init() {
+    let profile = getProfile();
+    let prog = getProgress();
+    // Set exam countdown
+    let daysToExam = daysBetween(todayStr(), EXAM_DATE);
+    document.getElementById('examCountdown').textContent = '距离考试: ' + Math.max(0, daysToExam) + '天';
+    // Handle missed days
+    handleMissedDays();
+    // Render dashboard
+    renderDashboard();
+}
+init();
+
+</script>
+</body>
+</html>
